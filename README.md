@@ -4,3 +4,5 @@
 * oe-cloud
 * oe-logger
 * oe-expression
+* oe-personalization
+
