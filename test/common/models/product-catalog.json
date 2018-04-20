@@ -1,0 +1,27 @@
+{
+  "name": "ProductCatalog",
+  "base": "BaseEntity",
+  "idInjection": true,
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+	  "require" : true
+    },
+	"desc" : {
+	  "type" : "string"
+	},
+	"price" :{
+	  "type" : "object"
+  },
+  "isAvailable" : {
+    "type" : "boolean"
+  }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

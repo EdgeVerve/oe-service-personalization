@@ -1,0 +1,18 @@
+[
+  {
+    "path": "oe-cloud",
+    "enabled": true
+  },
+  {
+    "path": "oe-personalization",
+    "enabled": true
+  },
+  {
+    "path": "oe-service-personalization",
+    "enabled": true
+  },
+  {
+    "path": "./",
+    "enabled": true
+  }
+]
