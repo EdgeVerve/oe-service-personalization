@@ -7,8 +7,7 @@
   "strict": true,
   "options": {
     "validateUpsert": true,
-    "isFrameworkModel": true,
-    "disableManualPersonalization": false
+    "isFrameworkModel": true
   },
   "properties": {
     "ruleName": {
@@ -31,7 +30,6 @@
       "required": true
     }
   },
-  "cacheable": true,
   "validations": [],
   "relations": {},
   "acls": [],
