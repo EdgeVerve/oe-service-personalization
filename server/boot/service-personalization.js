@@ -1,6 +1,6 @@
-﻿/**
+/**
  *
- * ©2017-2018 EdgeVerve Systems Limited (a fully owned Infosys subsidiary),
+ * ©2018-2019 EdgeVerve Systems Limited (a fully owned Infosys subsidiary),
  * Bangalore, India. All Rights Reserved.
  *
  */
@@ -280,24 +280,13 @@ function afterRemotePersonalizationExec(model, ctx, next) {
     if (rule !== null && typeof rule !== 'undefined') {
       log.debug(ctx.req.callContext, 'afterRemotePersonalizationExec personalization rule found , rule: ', rule);
       log.debug(ctx.req.callContext, 'applying PersonalizationRule now');
-      var fns = servicePersonalizer.applyPersonalizationRule(ctx, rule.personalizationRule); 
-      var callContext = ctx.req.callContext;
-      var postProcessingFns = (callContext && callContext.postProcessingFns) ? callContext.postProcessingFns[callContext.modelName] : null;
-      if (postProcessingFns && typeof postProcessingFns !== 'undefined') {
-        log.debug(ctx.req.callContext, 'PostProcessingFunctions = ', postProcessingFns);
-        log.debug(ctx.req.callContext, 'looping through and executing PostProcessingFunctions');
-        for (var i in postProcessingFns) {
-          if (postProcessingFns.hasOwnProperty(i)) {
-            var processingFn = postProcessingFns[i];
-            processingFn.execute(ctx);
-          }
-        }
-        log.debug(ctx.req.callContext, 'deleting PostProcessingFunctions');
-        delete callContext.postProcessingFns[callContext.modelName];
+
+      log.debug(ctx.req.callContext, 'beforeRemoteFindHook personalization rule found , rule: ', rule);
+      var fns = servicePersonalizer.applyPersonalizationRule(ctx, rule.personalizationRule);
+      servicePersonalizer.execute(fns, function (err) {
+        log.debug(ctx.req.callContext, 'filter', ctx.args.filter);
         next();
-      } else {
-        next();
-      }
+      });
     } else {
       log.debug(ctx.req.callContext, 'afterRemotePersonalizationExec no rules were found');
       next();
@@ -318,24 +307,10 @@ function beforeRemotePersonalizationExec(model, ctx, next) {
     if (rule !== null && typeof rule !== 'undefined') {
       log.debug(ctx.req.callContext, 'beforeRemotePersonalizationExec personalization rule found , rule: ', rule);
       log.debug(ctx.req.callContext, 'applying PersonalizationRule now');
-      servicePersonalizer.applyReversePersonalizationRule(ctx, rule.personalizationRule, function servicePersonalizationMixinBeforeCreateApplyReverse(rule) {
-        var callContext = ctx.req.callContext;
-        var preProcessingFns = callContext.preProcessingFns ? callContext.preProcessingFns[callContext.modelName] : null;
-        if (preProcessingFns && typeof preProcessingFns !== 'undefined') {
-          log.debug(ctx.req.callContext, 'PreProcessingFunctions = ', preProcessingFns);
-          log.debug(ctx.req.callContext, 'looping through and executing PreProcessingFunctions');
-          for (var i in preProcessingFns) {
-            if (preProcessingFns.hasOwnProperty(i)) {
-              var processingFn = preProcessingFns[i];
-              processingFn.execute(ctx);
-            }
-          }
-          log.debug(ctx.req.callContext, 'deleting PreProcessingFunctions');
-          delete callContext.preProcessingFns[callContext.modelName];
-          next();
-        } else {
-          next();
-        }
+      var fns = servicePersonalizer.applyReversePersonalizationRule(ctx, rule.personalizationRule);
+      servicePersonalizer.execute(fns, function (err) {
+        log.debug(ctx.req.callContext, 'filter', ctx.args.filter);
+        next();
       });
     } else {
       log.debug(ctx.req.callContext, 'beforeRemotePersonalizationExec no rules were found');
