@@ -16,7 +16,7 @@
 var loopback = require('loopback');
 var log = require('oe-logger')('service-personalization');
 
-//var messaging = require('../../lib/common/global-messaging');
+// var messaging = require('../../lib/common/global-messaging');
 var servicePersonalizer = require('../../lib/service-personalizer');
 
 var personalizationRuleModel;
@@ -98,7 +98,7 @@ function personalizationRuleAfterSave(ctx, next) {
   log.debug(log.defaultContext(), 'personalizationRuleAfterSave method.');
   var data = ctx.data || ctx.instance;
   // Publishing message to other nodes in cluster to attach the 'before save' hook for model.
-  //messaging.publish('personalizationRuleAttachHook', data.modelName, ctx.options);
+  // messaging.publish('personalizationRuleAttachHook', data.modelName, ctx.options);
   log.debug(log.defaultContext(), 'personalizationRuleAfterSave data is present. calling attachBeforeSaveHookToModel');
   attachRemoteHooksToModel(data.modelName, ctx.options);
   next();
