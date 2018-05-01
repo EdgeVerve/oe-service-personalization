@@ -211,50 +211,8 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it('t4 should post results on the given URL when httpPostFunction is configured', function (done) {
-    // Setup personalization rule
-    var ruleForAndroid = {
-      'modelName': 'ProductCatalog',
-      'personalizationRule': {
-        'httpPostFunction': {
-          'url': 'http://localhost:1880/dumpResults',
-          'async': true
-        }
-      },
-      'scope': {
-        'device': 'android'
-      }
-    };
-
-    PersonalizationRule.create(ruleForAndroid, function (err, rule) {
-      if (err) {
-        return done(err);
-      }
-      //var ruleId = rule.id;
-
-      api.get(productCatalogUrl)
-        .set('Accept', 'application/json')
-        .set('REMOTE_USER', 'testUser')
-        .set('device', 'android')
-        .expect(200).end(function (err, resp) {
-          if (err) {
-            throw new Error(err);
-          }
-
-          // console.log('resp --' + JSON.stringify(resp, null, 2));
-
-          var results = resp.body; 
-          // console.log('resp --' + JSON.stringify(results, null, 2));
-          expect(results.length).to.be.equal(6);
-          expect(results[0]).to.include.keys('name', 'desc', 'category', 'price', 'isAvailable', 'id');
-          // expect(results[0].isAvailable).to.be.equal(1);
-          done();
-        });
-    });
-  });
-
   //sort test cases
-  it('t5 single sort condition:  should return the sorted result when sort personalization rule is configured.', function (done) {
+  it('t4 single sort condition:  should return the sorted result when sort personalization rule is configured.', function (done) {
       // Setup personalization rule
       var ruleForAndroid = {
         'modelName': 'ProductCatalog',
@@ -288,7 +246,7 @@ describe(chalk.blue('service personalization test started...'), function () {
       });
     });
 
-  it('t6 single sort condition: should sort in ascending order when the sort order is not specified', function (done) {
+  it('t5 single sort condition: should sort in ascending order when the sort order is not specified', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
