@@ -35,5 +35,9 @@
   "ProductCatalog": {
     "dataSource": "db",
     "public": true
+  },
+  "ProductOwner" :{
+    "dataSource": "db",
+    "public": true    
   }
 }
