@@ -55,13 +55,14 @@ module.exports = function GruntConfig(grunt) {
       coverage: {
         src: 'server/test.js',
         options: {
-          excludes: [],
+	  includes: ['./node_modules/oe-service-personalization/**/*.js'],
+          excludes: ['./node_modules/oe-service-personalization/node_modules/**/*.js'],
           timeout: 60000,
           check: {
-            lines: 50,
-            statements: 50,
-            branches: 50,
-            functions:50 
+            lines: 30,
+            statements: 30,
+            branches: 30,
+            functions:30 
           },
           reportFormats: ['lcov']
         }
