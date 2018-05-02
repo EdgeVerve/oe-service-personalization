@@ -1,0 +1,23 @@
+{
+  "name": "ProductOwner",
+  "base": "BaseEntity",
+  "idInjection": true,
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string",
+	    "require" : true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "ProductCatalog": {
+      "type": "hasMany",
+      "model": "ProductCatalog"
+    }    
+  },
+  "acls": [],
+  "methods": {}
+}
