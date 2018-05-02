@@ -7,7 +7,9 @@
   },
   "main": "index.js",
   "scripts": {
-    "test" : "cd test && npm install --no-optional && ./node_modules/.bin/mocha server/test.js"
+    "pretest" : "cd test && npm install --no-optional", 
+    "test" : "cd test && ./node_modules/.bin/mocha server/test.js",
+    "grunt-cover" : "cd test && npm install --no-optional && ./node_modules/.bin/grunt --base ./ test-with-coverage"
   },
   "dependencies": {
     "async": "^2.5.0",
