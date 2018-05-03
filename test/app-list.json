@@ -8,11 +8,12 @@
     "enabled": true
   },
   {
-    "path": "oe-service-personalization",
-    "enabled": true
-  },
-  {
     "path": "./",
     "enabled": true
+  },  
+  {
+    "path": "./",
+    "enabled": true,
+    "serverDir" : "test"
   }
 ]

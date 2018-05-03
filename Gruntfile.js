@@ -38,7 +38,7 @@ module.exports = function GruntConfig(grunt) {
           clearRequireCache: true,
           timeout: 100000
         },
-        src: ['server/test.js']
+        src: ['test/test.js']
       }
     },
 
@@ -53,10 +53,8 @@ module.exports = function GruntConfig(grunt) {
 
     mocha_istanbul: {
       coverage: {
-        src: 'server/test.js',
+        src: 'test/test.js',
         options: {
-	  includes: ['./node_modules/oe-service-personalization/**/*.js'],
-          excludes: ['./node_modules/oe-service-personalization/node_modules/**/*.js'],
           timeout: 60000,
           check: {
             lines: 30,
