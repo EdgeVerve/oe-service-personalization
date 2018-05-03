@@ -11,8 +11,11 @@
 ```sh
 $ git clone http://evgit/atul/oe-service-personalization.git
 $ cd oe-service-personalization
-$ cd test
-$ npm install 
-$ mocha server/test.js
+$ npm install --no-optional
+$ # Just run test cases
+$ npm run test
+$ # Run coverage - coverage report will be available in coverage folder
+$ npm run grunt-cover
 ```
+
 
