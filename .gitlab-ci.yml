@@ -19,14 +19,6 @@ npminstall:
   stage: pre-build
   script:
     - echo "Performing code style check..."
-    - echo $http_proxy
-    - echo $https_proxy
-    - echo $http-proxy
-    - echo $https-proxy
-    - echo $HTTP_PROXY
-    - echo $HTTPS_PROXY
-    - echo $HTTP-PROXY
-    - echo $HTTPS-PROXY
     - status_eslint=0
     - exit_status=0
     - npm config set registry http://registry.npmjs.org/
