@@ -82,4 +82,6 @@ lastcleanup:
   stage: cleanup
   script:
     - echo "Finishing CI CD"
+  tags:
+    - CEP_RUNNER
 
