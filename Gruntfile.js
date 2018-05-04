@@ -60,7 +60,7 @@ module.exports = function GruntConfig(grunt) {
             lines: 30,
             statements: 30,
             branches: 30,
-            functions:30 
+            functions: 30
           },
           reportFormats: ['lcov']
         }
