@@ -8,11 +8,10 @@
   "main": "index.js",
   "scripts": {
     "pretest": "npm install --no-optional",
-    "test": "./node_modules/.bin/mocha test/test.js",
-    "lint": "./node_modules/.bin/eslint .",
-    "fix-lint": "./node_modules/.bin/eslint --fix .",
-    "grunt-cover": "npm install --no-optional && ./node_modules/.bin/grunt test-with-coverage",
-    "grunt-cover-windows": "npm install --no-optional && .\\node_modules\\.bin\\grunt test-with-coverage"
+    "test": "mocha test/test.js",
+    "lint": "eslint .",
+    "fix-lint": "eslint --fix .",
+    "grunt-cover": "npm install --no-optional && grunt test-with-coverage"
   },
   "dependencies": {
     "async": "^2.5.0",
