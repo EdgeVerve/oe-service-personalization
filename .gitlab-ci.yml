@@ -4,8 +4,7 @@ stages:
   - build
   - cleanup
 
-image: $REGISTRY/evfoundation-executor-docker13:node8alpine36
-
+image: $REGISTRY/debian-node-oracle-docker
 variables:
   REGISTRY: registry.${DOMAIN_NAME}
 
@@ -72,7 +71,6 @@ postgrestest:
     - CEP_RUNNER
     
 oracletest:
-  image: $REGISTRY/debian-node-oracle-docker
   stage: pre-build-test
   script:
     - echo 'Performing Oracle Test'
