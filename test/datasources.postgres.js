@@ -6,6 +6,8 @@
  */
 var postgresHost = process.env.POSTGRES_HOST || 'localhost';
 var dbName = process.env.DB_NAME || 'service-personalization-test';
+console.log("XXXXX=");
+console.log(dbName);
 module.exports = 
 {
   "memdb": {
@@ -20,7 +22,7 @@ module.exports =
   "db": {
     "host": postgresHost,
     "port": 5432,
-    "url": "postgres://postgres:postgres@" + postgresHost + ":5432/db",
+    "url": "postgres://postgres:postgres@" + postgresHost + ":5432/" + dbName,
     "database": dbName,
     "password": "postgres",
     "name": "db",
