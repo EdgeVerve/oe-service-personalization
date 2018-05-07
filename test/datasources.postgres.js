@@ -6,8 +6,6 @@
  */
 var postgresHost = process.env.POSTGRES_HOST || 'localhost';
 var dbName = process.env.DB_NAME || 'service-personalization-test';
-console.log("XXXXX=");
-console.log(dbName);
 module.exports = 
 {
   "memdb": {
