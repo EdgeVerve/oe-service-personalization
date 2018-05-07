@@ -84,7 +84,7 @@ oracletest:
     - npm install git+http://evgit/oecloud.io/oe-connector-oracle.git --no-optional
     - mv /oracledb node_modules/
     - export CI_PROJECT_NAMESPACE=${group}
-    - node server/oracle-utility.js
+    - node test/oracle-utility.js
     - export ORACLE_USERNAME=${CI_PROJECT_NAMESPACE}"-"${CI_PROJECT_NAME}
     - export ORACLE_USERNAME=$(echo $ORACLE_USERNAME | tr '[:lower:]' '[:upper:]')
     - export ORACLE_PASSWORD=$(echo $CI_PROJECT_NAMESPACE | tr '[:upper:]' '[:lower:]')
