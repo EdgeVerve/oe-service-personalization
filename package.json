@@ -11,7 +11,7 @@
     "test": "mocha test/test.js",
     "lint": "eslint .",
     "fix-lint": "eslint --fix .",
-    "grunt-cover": "npm install --no-optional && grunt test-with-coverage"
+    "grunt-cover": "grunt test-with-coverage"
   },
   "dependencies": {
     "async": "^2.5.0",
@@ -46,7 +46,8 @@
     "sinon": "^1.17.7",
     "superagent-defaults": "^0.1.14",
     "supertest": "^1.1.0",
-    "loopback-connector-postgresql": "git+http://evgit/atul/loopback-connector-postgresql.git#master"
+    "loopback-connector-postgresql": "git+http://evgit/atul/loopback-connector-postgresql.git#master",
+    "loopback-component-storage": "git+http://evgit/oecloud.io/loopback-component-storage.git#master"
   },
   "repository": {
     "type": "git",

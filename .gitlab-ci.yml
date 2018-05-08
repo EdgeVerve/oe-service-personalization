@@ -46,6 +46,7 @@ mongotest:
     - export MONGO_HOST="10.73.53.144"
     - export DB=mongo
     - export DB_NAME=${CI_PIPELINE_ID}_mongo
+    - time npm install --no-optional
     - npm run grunt-cover
   artifacts:
     untracked: true
@@ -64,6 +65,7 @@ postgrestest:
     - export DB=postgres
     - export POSTGRES_HOST="10.73.53.144"
     - export DB_NAME=${CI_PIPELINE_ID}_pg
+    - time npm install --no-optional
     - npm run grunt-cover
   tags:
     - CEP_RUNNER    
@@ -81,7 +83,8 @@ oracletest:
     - export ORACLE_SYSPASSWORD=oeadmin
     - export ORACLE_SID=ORCLCDB
     - export DB_NAME=${CI_PIPELINE_ID}_pg
-    - npm install git+http://evgit/oecloud.io/oe-connector-oracle.git --no-optional
+    - time npm install git+http://evgit/oecloud.io/oe-connector-oracle.git --no-optional
+    - time npm install --no-optional
     - mv /oracledb node_modules/
     - export CI_PROJECT_NAMESPACE=${group}
     - node test/oracle-utility.js
