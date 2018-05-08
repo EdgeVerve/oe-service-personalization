@@ -287,5 +287,303 @@ describe(chalk.blue('service personalization test started...'), function () {
         });
     });
   });
+
+  it('t6 single sort condition: should accept the keywords like asc,ascending,desc or descending as sort order', function (done) {
+      // Setup personalization rule
+      var ruleForAndroid = {
+          'modelName': 'ProductCatalog',
+          'personalizationRule': {
+              'sort': {
+                  'name': 'descending'
+              }
+          },
+          'scope': {
+              'device': 'android'
+          }
+      };
+
+      PersonalizationRule.create(ruleForAndroid, {}, function (err, rule) {
+          if (err) {
+              return done(err);
+          }
+          api.get(productCatalogUrl)
+            .set('Accept', 'application/json')
+            .set('REMOTE_USER', 'testUser')
+            .set('device', 'android')
+            .expect(200).end(function (err, resp) {
+                if (err) {
+                    return done(err);
+                }
+                var results = resp.body;
+                expect(results).to.be.instanceof(Array);
+                expect(results.length).to.equal(6);
+                expect(results[0].name).to.be.equal('water heater');
+                done();
+            });
+      });
+  });
+
+  it('t7 smultiple sort condition: should return sorted result when personalization rule with multiple sort is configured', function (done) {
+      // Setup personalization rule
+      var ruleForAndroid = {
+          'modelName': 'ProductCatalog',
+          'personalizationRule': {
+              'sort': [{
+                  'category': 'asc'
+              }, {
+                  'name': 'desc'
+              }]
+          },
+          'scope': {
+              'device': 'android'
+          }
+      };
+
+      PersonalizationRule.create(ruleForAndroid, {}, function (err, rule) {
+          if (err) {
+              return done(err);
+          }
+          api.get(productCatalogUrl)
+            .set('Accept', 'application/json')
+            .set('REMOTE_USER', 'testUser')
+            .set('device', 'android')
+            .expect(200).end(function (err, resp) {
+                if (err) {
+                    return done(err);
+                }
+                var results = resp.body;
+                expect(results).to.be.instanceof(Array);
+                expect(results.length).to.equal(6);
+                expect(results[0].category).to.be.equal('electronics');
+                expect(results[0].name).to.be.equal('water heater');
+                done();
+            });
+      });
+  });
+
+  it('t8 multiple sort condition: should omit the sort expression whose order value(ASC|DSC) doesnt match the different cases', function (done) {
+      // Setup personalization rule
+      var ruleForAndroid = {
+          'modelName': 'ProductCatalog',
+          'personalizationRule': {
+              'sort': [{
+                  'category': 'asc'
+              }, {
+                  'name': 'abcd'
+              }]
+          },
+          'scope': {
+              'device': 'android'
+          }
+      };
+
+      PersonalizationRule.create(ruleForAndroid, {}, function (err, rule) {
+          if (err) {
+              return done(err);
+          }
+          api.get(productCatalogUrl)
+            .set('Accept', 'application/json')
+            .set('REMOTE_USER', 'testUser')
+            .set('device', 'android')
+            .expect(200).end(function (err, resp) {
+                if (err) {
+                    return done(err);
+                }
+                var results = resp.body;
+                expect(results).to.be.instanceof(Array);
+                expect(results.length).to.equal(6);
+                expect(results[0].category).to.be.equal('electronics');
+                expect(results[1].category).to.be.equal('electronics');
+                expect(results[2].category).to.be.equal('electronics');
+                expect(results[3].category).to.be.equal('furniture');
+                expect(results[4].category).to.be.equal('furniture');
+                expect(results[5].category).to.be.equal('furniture');
+                done();
+            });
+      });
+  });
+
+  it('t9 sort and filter combined: should return filterd and sorted result when filter and sort personalization is configured', function (done) {
+      // Setup personalization rule
+      var ruleForAndroid = {
+          'modelName': 'ProductCatalog',
+          'personalizationRule': {
+              'filter': {
+                  'category': 'furniture'
+              },
+              'sort': {
+                  'name': 'asc'
+              }
+          },
+          'scope': {
+              'device': 'android'
+          }
+      };
+
+      PersonalizationRule.create(ruleForAndroid, {}, function (err, rule) {
+          if (err) {
+              return done(err);
+          }
+          api.get(productCatalogUrl)
+            .set('Accept', 'application/json')
+            .set('REMOTE_USER', 'testUser')
+            .set('device', 'android')
+            .expect(200).end(function (err, resp) {
+                if (err) {
+                    return done(err);
+                }
+                var results = resp.body;
+                expect(results).to.be.instanceof(Array);
+                expect(results.length).to.equal(3);
+                expect(results[0].category).to.be.equal('furniture');
+                expect(results[0].name).to.be.equal('dinning table');
+                done();
+            });
+      });
+  });
+
+  it('t10 multiple sort: should handle duplicate sort expressions', function (done) {
+      // Setup personalization rule
+      var ruleForAndroid = {
+          'modelName': 'ProductCatalog',
+          'personalizationRule': {
+              'sort': {
+                  'name': 'asc'
+              }
+          },
+          'scope': {
+              'device': 'android'
+          }
+      };
+
+      PersonalizationRule.create(ruleForAndroid, {}, function (err, rule) {
+          if (err) {
+              return done(err);
+          }
+          api.get(productCatalogUrl + '?access_token=' + '1'+ '&filter[fields][name]=true')
+            .set('Accept', 'application/json')
+            .set('REMOTE_USER', 'testUser')
+            .set('device', 'android')
+            .expect(200).end(function (err, resp) {
+                if (err) {
+                    return done(err);
+                }
+                var results = resp.body;
+                expect(results).to.be.instanceof(Array);
+                expect(results.length).to.equal(6);
+                expect(results[0].name).to.be.equal('dinning table');
+                done();
+            });
+      });
+  });
+
+  it('t11 multiple sort: should handle clashing sort expressions.(Eg:name ASC in personalization rule and name DESC from API, in this case consider name DESC from API)',
+    function (done) {
+        // Setup personalization rule
+        var ruleForAndroid = {
+            'modelName': 'ProductCatalog',
+            'personalizationRule': {
+                'sort': {
+                    'name': 'asc'
+                }
+            },
+            'scope': {
+                'device': 'android'
+            }
+        };
+
+
+        PersonalizationRule.create(ruleForAndroid, {}, function (err, rule) {
+            if (err) {
+                return done(err);
+            }
+            api.get(productCatalogUrl + '?access_token=' + '1' + '&filter[order]=name DESC')
+              .set('Accept', 'application/json')
+              .set('REMOTE_USER', 'testUser')
+              .set('device', 'android')
+              .expect(200).end(function (err, resp) {
+                  if (err) {
+                      return done(err);
+                  }
+                  var results = resp.body;
+                  expect(results).to.be.instanceof(Array);
+                  expect(results.length).to.equal(6);
+                  expect(results[0].name).to.be.equal('water heater');
+                  done();
+              });
+        });
+    });
+
+  it('t13 Mask:should mask the given fields and not send them to the response', function (done) {
+      // Setup personalization rule
+      var ruleForAndroid = {
+          'modelName': 'ProductCatalog',
+          'personalizationRule': {
+              'mask': {
+                  'category': true
+              }
+          },
+          'scope': {
+              'device': 'android'
+          }
+      };
+
+      PersonalizationRule.create(ruleForAndroid, {}, function (err, rule) {
+          if (err) {
+              return done(err);
+          }
+          api.get(productCatalogUrl)
+            .set('Accept', 'application/json')
+            .set('REMOTE_USER', 'testUser')
+            .set('device', 'android')
+            .expect(200).end(function (err, resp) {
+                if (err) {
+                    return done(err);
+                }
+                var results = resp.body;
+                expect(results).to.be.instanceof(Array);
+                expect(results.length).to.equal(6);
+                expect(results[0].category).to.be.equal(undefined);
+                done();
+            });
+      });
+  });
+
+  it('t14 Mask:should mask the given fields and not send them to the response', function (done) {
+      // Setup personalization rule
+      var ruleForAndroid = {
+          'modelName': 'ProductCatalog',
+          'personalizationRule': {
+              'mask': {
+                  'category': true
+              }
+          },
+          'scope': {
+              'device': 'android'
+          }
+      };
+
+
+      PersonalizationRule.create(ruleForAndroid, {}, function (err, rule) {
+          if (err) {
+              return done(err);
+          }
+          api.get(productCatalogUrl + '?filter[fields][name]=true')
+            .set('Accept', 'application/json')
+            .set('REMOTE_USER', 'testUser')
+            .set('device', 'android')
+            .expect(200).end(function (err, resp) {
+                if (err) {
+                    return done(err);
+                }
+                var results = resp.body;
+                expect(results).to.be.instanceof(Array);
+                expect(results.length).to.equal(6);
+                expect(results[0].desc).to.be.equal(undefined);
+                expect(results[0].category).to.be.equal(undefined);
+                done();
+            });
+      });
+  });
 });
 
