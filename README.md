@@ -17,3 +17,4 @@ $ npm run test
 $ # Run test cases along with code coverage - code coverage report will be available in coverage folder
 $ npm run grunt-cover
 ```
+
