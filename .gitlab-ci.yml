@@ -83,7 +83,7 @@ oracletest:
     - export ORACLE_SYSPASSWORD=oeadmin
     - export ORACLE_SID=ORCLCDB
     - export DB_NAME=${CI_PIPELINE_ID}_pg
-    - time npm install git+http://evgit/oecloud.io/oe-connector-oracle.git --no-optional
+    - time npm install git+http://evgit/atul/oe-connector-oracle.git --no-optional
     - time npm install --no-optional
     - mv /oracledb node_modules/
     - export CI_PROJECT_NAMESPACE=${group}
