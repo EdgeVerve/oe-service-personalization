@@ -46,8 +46,7 @@
     "sinon": "^1.17.7",
     "superagent-defaults": "^0.1.14",
     "supertest": "^1.1.0",
-    "loopback-connector-postgresql": "git+http://evgit/atul/loopback-connector-postgresql.git#master",
-    "loopback-component-storage": "git+http://evgit/oecloud.io/loopback-component-storage.git#master"
+    "loopback-connector-postgresql": "git+http://evgit/atul/loopback-connector-postgresql.git#master"
   },
   "repository": {
     "type": "git",
