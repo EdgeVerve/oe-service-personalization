@@ -34,25 +34,6 @@ module.exports = {
     'port': oraclePort,
     'password': oracleUserPassword,
     'user': oracleUserName
-  },
-  'emailDs': {
-    'name': 'emailDs',
-    'connector': 'mail',
-    'transports': [{
-      'type': 'smtp',
-      'host': 'smtp.gmail.com',
-      'port': 587,
-      'auth': {
-        'user': 'yourGmailAccount@gmail.com',
-        'pass': 'yourSecretPassword'
-      }
-    }]
-  },
-  'gridfs_db': {
-    'name': 'gridfs_db',
-    'connector': 'loopback-component-storage',
-    'provider': 'filesystem',
-    'root': './'
   }
 };
 
