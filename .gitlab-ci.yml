@@ -20,7 +20,6 @@ npminstall:
     - echo "Performing code style check..."
     - status_eslint=0
     - exit_status=0
-    - npm config set registry http://registry.npmjs.org/
     - npm set progress=false
     - time npm install eslint babel-eslint --no-optional
     - if npm run lint; then status_eslint=0; else status_eslint=1; fi
