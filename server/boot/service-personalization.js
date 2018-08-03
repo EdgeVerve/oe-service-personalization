@@ -226,7 +226,7 @@ function beforeRemoteCreateHook(model) {
 function beforeRemoteUpsertHook(model) {
   model.beforeRemote('upsert', function (ctx, modelInstance, next) {
     log.debug(ctx.req.callContext, 'beforeRemoteUpsertHook for ', model.modelName, ' called');
-    afterRemotePersonalizationExec(model, ctx, next);
+    beforeRemotePersonalizationExec(model, ctx, next);
   });
 }
 
