@@ -4,7 +4,7 @@ var loopback = require('loopback');
 oecloud.boot(__dirname, function (err) {
   if (err) {
     console.log(err);
-    process.exit(1);
+    process.eit(1);
   }
   oecloud.start();
   oecloud.emit('test-start');
@@ -80,7 +80,7 @@ describe(chalk.blue('service personalization test started...'), function () {
       });
   });
   PersonalizationRule = loopback.findModel('PersonalizationRule');
-  it('service personalization test - create test data', function (done) {
+  before('service personalization test - create test data', function (done) {
     // Populate some data.
     var item1 = {
       'name': 'king size bed',
@@ -576,14 +576,13 @@ describe(chalk.blue('service personalization test started...'), function () {
     };
 
 
-    models.PersonalizationRule.create(ruleForAndroid, bootstrap.defaultContext, function (err, rule) {
+    PersonalizationRule.create(ruleForAndroid, {}, function (err, rule) {
 
       if (err) {
         throw new Error(err);
       }
       api.get(productCatalogUrl + '?access_token=' + accessToken)
         .set('Accept', 'application/json')
-        .set('TENANT_ID', tenantId)
         .set('REMOTE_USER', 'testUser')
         .set('device', 'android').expect(200).end(function (err, resp) {
           if (err) {
@@ -619,7 +618,7 @@ describe(chalk.blue('service personalization test started...'), function () {
       if (err) {
         return done(err);
       }
-      api.get(productCatalogUrl  + '?access_token=' + accessToken)
+      api.get(productCatalogUrl + '?access_token=' + accessToken)
         .set('Accept', 'application/json')
         .set('REMOTE_USER', 'testUser')
         .set('device', 'android')
@@ -655,7 +654,7 @@ describe(chalk.blue('service personalization test started...'), function () {
       if (err) {
         return done(err);
       }
-      api.get(productCatalogUrl  + '?access_token=' + accessToken + '&filter[fields][name]=true')
+      api.get(productCatalogUrl + '?access_token=' + accessToken + '&filter[fields][name]=true')
         .set('Accept', 'application/json')
         .set('REMOTE_USER', 'testUser')
         .set('device', 'android')
@@ -760,9 +759,8 @@ describe(chalk.blue('service personalization test started...'), function () {
           'isAvailable': true
         };
 
-        api.post(productCatalogUrl  + '?access_token=' + accessToken)
+        api.post(productCatalogUrl + '?access_token=' + accessToken)
           .set('Accept', 'application/json')
-          .set('TENANT_ID', tenantId)
           .set('REMOTE_USER', 'testUser')
           .set('device', 'android')
           .send(postData)
@@ -779,7 +777,7 @@ describe(chalk.blue('service personalization test started...'), function () {
       });
     });
 
-  
+
 
   it('t17 should replace field names and field value names when scope of personalization rule matches', function (done) {
     // Setup personalization rule
@@ -805,16 +803,15 @@ describe(chalk.blue('service personalization test started...'), function () {
     var ruleForIos = {
       'modelName': 'ProductCatalog',
       'personalizationRule': {
-
         'fieldValueReplace': {
-          'fieldReplace': {
-            'name': 'product_name_ios',
-            'desc': 'product_description_ios'
-          },
           'name': {
             'oven': 'new_oven_ios'
           }
-        }
+        },
+        'fieldReplace': {
+          'name': 'product_name_ios',
+          'desc': 'product_description_ios'
+        },
       },
       'scope': {
         'device': 'ios'
@@ -859,7 +856,7 @@ describe(chalk.blue('service personalization test started...'), function () {
             .set('Accept', 'application/json')
             // .set('TENANT_ID', tenantId)
             .set('REMOTE_USER', 'testUser')
-            .set('device', 'android')
+            .set('device', 'ios')
             .send(postData)
             .expect(200).end(function (err, resp) {
               if (err) {
@@ -868,8 +865,8 @@ describe(chalk.blue('service personalization test started...'), function () {
 
               var results = JSON.parse(resp.text);
               expect(results)
-                .to.include.keys('product_name_android', 'product_description_android');
-              expect(results.product_name_android).to.be.equal('new_oven_android');
+                .to.include.keys('product_name_ios', 'product_description_ios');
+              expect(results.product_name_ios).to.be.equal('new_oven_ios');
               done();
             });
         });
@@ -885,11 +882,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
       'personalizationRule': {
-        'fieldReplace': {
-          'price\uFF0Ecurrency': 'price_currency',
-          'name': 'product_name_android',
-          'desc': 'product_description_android'
-        },
+        
         'fieldValueReplace': {
           'name': {
             'oven': 'new_oven_android'
@@ -897,6 +890,11 @@ describe(chalk.blue('service personalization test started...'), function () {
           'price\uFF0Ecurrency': {
             'inr': 'IndianRupee'
           }
+        },
+        'fieldReplace': {
+          'price\uFF0Ecurrency': 'price_currency',
+          'name': 'product_name_android',
+          'desc': 'product_description_android'
         }
       },
       'scope': {
@@ -952,11 +950,6 @@ describe(chalk.blue('service personalization test started...'), function () {
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
       'personalizationRule': {
-        'fieldReplace': {
-          'price\uFF0Ecurrency': 'price_currency',
-          'name': 'product_name_android',
-          'desc': 'product_description_android'
-        },
         'fieldValueReplace': {
           'name': {
             'oven': 'new_oven_android'
@@ -964,6 +957,11 @@ describe(chalk.blue('service personalization test started...'), function () {
           'price\uFF0Ecurrency': {
             'inr': 'IndianRupee'
           }
+        },
+        'fieldReplace': {
+          'price\uFF0Ecurrency': 'price_currency',
+          'name': 'product_name_android',
+          'desc': 'product_description_android'
         }
       },
       'scope': {
