@@ -882,7 +882,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
       'personalizationRule': {
-        
+
         'fieldValueReplace': {
           'name': {
             'oven': 'new_oven_android'
@@ -1421,5 +1421,186 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
 
   });
+
+  describe('Relation Tests - ', function () {
+    var AddressModel, CustomerModel;
+    var defContext = {};
+    before('setup test data', done => {
+      var ModelDefinition = loopback.findModel('ModelDefinition');
+
+      var AddressModelSpec = {
+        name: 'Address',
+        properties: {
+          street: {
+            type: 'string'
+          },
+          city: {
+            type: 'string'
+          },
+          state: {
+            type: 'string'
+          }
+        }
+      };
+
+      var CustomerModelSpec = {
+        name: 'Customer',
+        properties: {
+          name: 'string',
+          age: 'number',
+          relations: {
+            address: {
+              type: 'embedsOne',
+              model: 'Address',
+              property: 'billingAddress'
+            }
+          }
+        }
+      };
+
+      ModelDefinition.create([CustomerModelSpec, AddressModelSpec], defContext, function (err, data) {
+        if (err) {
+          done(err)
+        }
+        else {
+          
+          AddressModel = loopback.getModel('Address', defContext);
+          CustomerModel = loopback.getModel('Customer', defContext);
+          expect(AddressModel).to.not.be.undefined;
+          expect(CustomerModel).to.not.be.undefined;
+          done();
+        }
+      });
+
+    });
+
+    before('setup data', function (done) {
+      var customerData = [
+        {
+          'name': 'jenny',
+          'age': 23,
+          'billingAddress': {
+            'city': 'bangalore',
+            'state': 'Karnataka',
+            'street': 'HSR'
+          }
+        },
+
+        {
+          'name': 'John',
+          'age': 50,
+          'billingAddress': {
+            'city': 'blore',
+            'state': 'KTK',
+            'street': 'BTM'
+          }
+        },
+        {
+          'name': 'Jack',
+          'age': 50,
+          'billingAddress': {
+            'city': 'blore',
+            'state': 'KTK',
+            'street': 'Ecity'
+          }
+        }
+      ];
+      CustomerModel.create(customerData, {}, function (err) {
+        if (err) {
+          done(err);
+        }
+        else {
+          done();
+        }
+      });
+    });
+
+    afterEach('destroy context', function (done) {
+      var callContext = {
+        ctx: {
+          'device': ['android']
+        }
+      };
+      PersonalizationRule.destroyAll({}, callContext, function (err, result) {
+        // console.log("Model Removed : ", result.count);
+        done();
+      });
+    });
+
+    it('t31 should replace field names in response data when fieldReplace personalization rule is configured', done => {
+      var ruleForAndroid = {
+        'modelName': 'Customer',
+        'personalizationRule': {
+          'fieldReplace': {
+            'billingAddress\uFF0Estreet': 'lane'
+          }
+        },
+        'scope': {
+          'device': 'android'
+        }
+      };
+
+      PersonalizationRule.create(ruleForAndroid, {}, function (err) {
+        if (err) {
+          return done(err);
+        }
+        api.get('/api/Customers')
+          .set('Accept', 'application/json')
+          .set('device', 'android')
+          .expect(200).end(function (err, resp) {
+            if (err) {
+              done(err);
+            }
+            var results = resp.body;
+            expect(results.length).to.be.equal(3);
+            expect(results[0].billingAddress).keys('city', 'state', 'lane');
+            expect(results[0]).to.include.keys('name', 'age', 'billingAddress', 'id');
+            done();
+
+          });
+      });
+    });
+
+    it('t32 should sort the results based on sort expression', done => {
+      var ruleForAndroid = {
+        'modelName': 'Customer',
+        'personalizationRule': {
+          'sort': {
+            'billingAddress|street': 'asc'
+          }
+        },
+        'scope': {
+          'device': 'android'
+        }
+      };
+
+      PersonalizationRule.create(ruleForAndroid, defContext, function (err, rule) {
+
+        if (err) {
+          throw new Error(err);
+        }
+
+        api.get('/api/Customers')
+          .set('Accept', 'application/json')
+          .set('device', 'android')
+          .expect(200)
+          .end(function (err, resp) {
+            if (err) {
+              done(err);
+            }
+            var results = resp.body;
+            expect(results).to.be.instanceof(Array);
+            expect(results.length).to.equal(3);
+            expect(results[0].billingAddress.street).to.be.equal('BTM');
+            expect(results[1].billingAddress.street).to.be.equal('Ecity');
+            expect(results[2].billingAddress.street).to.be.equal('HSR');
+            done();
+          });
+      });
+    });
+
+  });
+
 });
+
 

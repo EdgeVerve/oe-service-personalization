@@ -256,6 +256,9 @@ function beforeRemoteFindHook(model) {
         log.debug(ctx.req.callContext, 'beforeRemoteFindHook personalization rule found , rule: ', rule);
         var fns = servicePersonalizer.applyPersonalizationRule(ctx, rule.personalizationRule);
         servicePersonalizer.execute(fns, function (err) {
+          if (err) {
+            return next(err);
+          }
           log.debug(ctx.req.callContext, 'filter', ctx.args.filter);
           next();
         });
@@ -284,6 +287,9 @@ function afterRemotePersonalizationExec(model, ctx, next) {
       log.debug(ctx.req.callContext, 'beforeRemoteFindHook personalization rule found , rule: ', rule);
       var fns = servicePersonalizer.applyPersonalizationRule(ctx, rule.personalizationRule);
       servicePersonalizer.execute(fns, function (err) {
+        if (err) {
+          return next(err);
+        }
         log.debug(ctx.req.callContext, 'filter', ctx.args.filter);
         next();
       });
@@ -309,6 +315,9 @@ function beforeRemotePersonalizationExec(model, ctx, next) {
       log.debug(ctx.req.callContext, 'applying PersonalizationRule now');
       var fns = servicePersonalizer.applyReversePersonalizationRule(ctx, rule.personalizationRule);
       servicePersonalizer.execute(fns, function (err) {
+        if (err) {
+          return next(err);
+        }
         log.debug(ctx.req.callContext, 'filter', ctx.args.filter);
         next();
       });
