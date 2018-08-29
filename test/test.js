@@ -1468,13 +1468,13 @@ describe(chalk.blue('service personalization test started...'), function () {
         name: 'Customer',
         properties: {
           name: 'string',
-          age: 'number',
-          relations: {
-            address: {
-              type: 'embedsOne',
-              model: 'Address',
-              property: 'billingAddress'
-            }
+          age: 'number'
+        },
+        relations: {
+          address: {
+            type: 'embedsOne',
+            model: 'Address',
+            property: 'billingAddress'
           }
         }
       };
@@ -1599,7 +1599,7 @@ describe(chalk.blue('service personalization test started...'), function () {
       };
 
       PersonalizationRule.create(ruleForAndroid, defContext, function (err, rule) {
-
+debugger;
         if (err) {
           throw new Error(err);
         }
@@ -1610,7 +1610,7 @@ describe(chalk.blue('service personalization test started...'), function () {
           .expect(200)
           .end(function (err, resp) {
             if (err) {
-              done(err);
+              return done(err);
             }
             var results = resp.body;
             expect(results).to.be.instanceof(Array);

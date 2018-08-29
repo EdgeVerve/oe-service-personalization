@@ -65,7 +65,7 @@ postgrestest:
     - export POSTGRES_HOST="10.73.53.144"
     - export DB_NAME=${CI_PIPELINE_ID}_pg
     - export ENABLE_DS_AUTOUPDATE=true
-    - time npm install git+http://evgit/oecloud.io/loopback-connector-postgresql.git --save    
+    # - time npm install git+http://evgit/oecloud.io/loopback-connector-postgresql.git --save    
     - time npm install --no-optional
     - npm run grunt-cover
   tags:
