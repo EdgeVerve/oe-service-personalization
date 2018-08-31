@@ -8,20 +8,25 @@
     },
     "category": {
       "type": "string",
-	  "require" : true
+      "require": true
     },
-	"desc" : {
-	  "type" : "string"
-	},
-	"price" :{
-	  "type" : "object"
-  },
-  "isAvailable" : {
-    "type" : "boolean"
-  }
+    "desc": {
+      "type": "string"
+    },
+    "price": {
+      "type": "object"
+    },
+    "isAvailable": {
+      "type": "boolean"
+    },
+    "modelNo": "string",
+    "keywords": [
+      "string"
+    ]
   },
   "validations": [],
   "relations": {},
   "acls": [],
-  "methods": {}
+  "methods": {},
+  "strict": true
 }

@@ -14,13 +14,13 @@
     "grunt-cover": "grunt test-with-coverage"
   },
   "dependencies": {
+    "assertion-error": "^1.1.0",
     "async": "^2.5.0",
-    "oe-logger": "^1.0.0",
-    "request": "^2.67.0",
     "lodash": "3.10.1",
-    "oe-expression": "git+http://evgit/atul/oe-expression.git#master",
-    "oe-cloud": "git+http://evgit/atul/oe-cloud.git#master",
-    "oe-personalization": "git+http://evgit/atul/oe-personalization.git#master"
+    "oe-cloud": "git+http://evgit/oec-next/oe-cloud.git#master",
+    "oe-expression": "git+http://evgit/oec-next/oe-expression.git#master",
+    "oe-logger": "^1.0.0",
+    "oe-personalization": "git+http://evgit/oec-next/oe-personalization.git#master"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",
@@ -39,10 +39,10 @@
     "grunt-mocha-istanbul": "^5.0.2",
     "grunt-mocha-test": "^0.13.2",
     "istanbul": "0.4.1",
+    "loopback-connector-postgresql": "git+http://evgit/oecloud.io/loopback-connector-postgresql",
     "mocha": "^3.4.2",
     "superagent-defaults": "^0.1.14",
-    "supertest": "^1.1.0",
-    "loopback-connector-postgresql": "git+http://evgit/atul/loopback-connector-postgresql.git#master"
+    "supertest": "^1.1.0"
   },
   "repository": {
     "type": "git",
