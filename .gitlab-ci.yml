@@ -1,7 +1,6 @@
 stages:
   - pre-build
   - pre-build-test
-  - build
   - cleanup
 
 image: $REGISTRY/debian-node-oracle-docker
@@ -100,13 +99,6 @@ oracletest:
     - npm run grunt-cover
   tags:
     - CEP_RUNNER    
-
-buildjob:
-  stage: build
-  script: 
-    - echo "Building Image"
-  tags:
-    - CEP_RUNNER
 
 lastcleanup:
   stage: cleanup
