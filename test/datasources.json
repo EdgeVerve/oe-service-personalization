@@ -10,8 +10,8 @@
   "db": {
     "host": "localhost",
     "port": 27017,
-    "url": "mongodb://localhost:27017/service-personalization-test",
-    "database": "service-personalization-test",
+    "url": "mongodb://localhost:27017/oe-service-personalization-test",
+    "database": "oe-service-personalization-test",
     "password": "admin",
     "name": "db",
     "connector": "mongodb",

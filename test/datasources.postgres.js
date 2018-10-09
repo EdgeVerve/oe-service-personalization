@@ -5,7 +5,7 @@
  *
  */
 var postgresHost = process.env.POSTGRES_HOST || 'localhost';
-var dbName = process.env.DB_NAME || 'service-personalization-test';
+var dbName = process.env.DB_NAME || 'oe-service-personalization-test';
 module.exports = 
 {
   "memdb": {
@@ -24,7 +24,7 @@ module.exports =
     "database": dbName,
     "password": "postgres",
     "name": "db",
-    "connector": "loopback-connector-postgresql",
+    "connector": "oe-connector-postgresql",
     "user": "postgres",
     "max": 50,
     "connectionTimeout": 50000

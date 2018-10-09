@@ -1,7 +1,6 @@
 stages:
   - pre-build
   - pre-build-test
-  - build
   - cleanup
 
 image: $REGISTRY/debian-node-oracle-docker
@@ -21,6 +20,7 @@ npminstall:
     - status_eslint=0
     - exit_status=0
     - npm set progress=false
+    - npm config set registry http://10.188.25.62:9002/
     - time npm install eslint babel-eslint --no-optional
     - if npm run lint; then status_eslint=0; else status_eslint=1; fi
     - if [ $status_eslint == 1 ]; then exit_status=1 && echo "esLint errors exist"; fi
@@ -45,6 +45,7 @@ mongotest:
     - export MONGO_HOST="10.73.53.144"
     - export DB=mongo
     - export DB_NAME=${CI_PIPELINE_ID}_mongo
+    - npm config set registry http://10.188.25.62:9002/
     - time npm install --no-optional
     - npm run grunt-cover
   artifacts:
@@ -66,6 +67,7 @@ postgrestest:
     - export DB_NAME=${CI_PIPELINE_ID}_pg
     - export ENABLE_DS_AUTOUPDATE=true
     # - time npm install git+http://evgit/oecloud.io/loopback-connector-postgresql.git --save    
+    - npm config set registry http://10.188.25.62:9002/
     - time npm install --no-optional
     - npm run grunt-cover
   tags:
@@ -84,6 +86,7 @@ oracletest:
     - export ORACLE_SYSPASSWORD=oeadmin
     - export ORACLE_SID=ORCLCDB
     - export DB_NAME=${CI_PIPELINE_ID}_pg
+    - npm config set registry http://10.188.25.62:9002/
     - time npm install git+http://evgit/oecloud.io/oe-connector-oracle.git --no-optional
     - time npm install --no-optional
     - mv /oracledb node_modules/
@@ -96,13 +99,6 @@ oracletest:
     - npm run grunt-cover
   tags:
     - CEP_RUNNER    
-
-buildjob:
-  stage: build
-  script: 
-    - echo "Building Image"
-  tags:
-    - CEP_RUNNER
 
 lastcleanup:
   stage: cleanup
