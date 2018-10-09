@@ -5,7 +5,7 @@
  *
  */
 var mongoHost = process.env.MONGO_HOST || 'localhost';
-var dbName = process.env.DB_NAME || 'service-personalization-test';
+var dbName = process.env.DB_NAME || 'oe-service-personalization-test';
 module.exports = 
 {
   "memdb": {
