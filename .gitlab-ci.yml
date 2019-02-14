@@ -1,9 +1,8 @@
 stages:
   - pre-build
   - pre-build-test
-  - cleanup
 
-image: $REGISTRY/debian-node-oracle-docker
+image: $REGISTRY/evfoundation-executor-docker13:node8alpine36
 variables:
   REGISTRY: registry.${DOMAIN_NAME}
 
@@ -34,7 +33,7 @@ npminstall:
     paths:
       - node_modules/
   tags:
-    - CEP_RUNNER
+    - CEP_RUNNER_EE
 
 
 mongotest:
@@ -55,7 +54,7 @@ mongotest:
       - coverage/
     when: on_failure
   tags:
-    - CEP_RUNNER
+    - CEP_RUNNER_EE
 
 postgrestest:
   stage: pre-build-test
@@ -71,11 +70,11 @@ postgrestest:
     - time npm install --no-optional
     - npm run grunt-cover
   tags:
-    - CEP_RUNNER    
-  tags:
-    - CEP_RUNNER
+    - CEP_RUNNER_EE    
+
     
 oracletest:
+  image: $REGISTRY/debian-node-oracle-docker
   stage: pre-build-test
   script:
     - echo 'Performing Oracle Test'
@@ -98,12 +97,4 @@ oracletest:
     - echo "Oracle user details:"${ORACLE_USERNAME}"/"${ORACLE_PASSWORD}
     - npm run grunt-cover
   tags:
-    - CEP_RUNNER    
-
-lastcleanup:
-  stage: cleanup
-  script:
-    - echo "Finishing CI CD"
-  tags:
-    - CEP_RUNNER
-
+    - CEP_RUNNER_EE    
