@@ -27,6 +27,12 @@ npminstall:
     - echo "Code style check done successfully"
     - time npm install --no-optional
     - echo "Node Modules Installed"
+    - npm config rm registry
+    - npm audit --json >vulnerabilities.json
+    - status_vulnerabilities=`echo $?`
+    - npm audit
+    - if [ $status_vulnerabilities == 1 ]; then exit_status=1 && echo "Dependency vulnerabilities exist"; fi
+    - if [ $exit_status == 1 ]; then exit $exit_status; fi
   artifacts:
     untracked: true
     expire_in: 2h
