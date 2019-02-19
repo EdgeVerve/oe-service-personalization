@@ -42,7 +42,7 @@
     "superagent-defaults": "0.1.14",
     "supertest": "3.4.2",
     "loopback-connector-mongodb": "3.9.2",
-    "oe-connector-postgresql": "git+http://evgit/oecloud.io/oe-connector-postgresql"
+    "oe-connector-postgresql": "git+http://evgit/oecloud.io/oe-connector-postgresql.git#master"
   },
   "repository": {
     "type": "git",
