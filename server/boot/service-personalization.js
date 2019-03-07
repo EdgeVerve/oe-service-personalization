@@ -131,6 +131,8 @@ function attachRemoteHooksToModel(modelName, options) {
     beforeRemoteUpsertHook(model);
     beforeRemoteUpdateAttributesHook(model);
     beforeRemoteFindHook(model);
+    beforeRemoteFindOneHook(model);
+    beforeRemoteFindByIdHook(model);
   }
 }
 
@@ -264,6 +266,50 @@ function beforeRemoteFindHook(model) {
         });
       } else {
         log.debug(ctx.req.callContext, 'beforeRemoteFindHook no rules were found');
+        next();
+      }
+    });
+  });
+}
+
+function beforeRemoteFindOneHook(model) {
+  model.beforeRemote('findOne', function (ctx, modelInstance, next) {
+    log.debug(ctx.req.callContext, 'beforeRemoteFindOneHook ', model.modelName, 'called');
+    servicePersonalizer.getPersonalizationRuleForModel(model.modelName, ctx, function servicePersonalizationAccessHookGetRuleCb(rule) {
+      if (rule !== null && typeof rule !== 'undefined') {
+        log.debug(ctx.req.callContext, 'beforeRemoteFindOneHook personalization rule found , rule: ', rule);
+        var fns = servicePersonalizer.applyPersonalizationRule(ctx, rule.personalizationRule);
+        servicePersonalizer.execute(fns, function (err) {
+          if (err) {
+            return next(err);
+          }
+          log.debug(ctx.req.callContext, 'filter', ctx.args.filter);
+          next();
+        });
+      } else {
+        log.debug(ctx.req.callContext, 'beforeRemoteFindOneHook no rules were found');
+        next();
+      }
+    });
+  });
+}
+
+function beforeRemoteFindByIdHook(model) {
+  model.beforeRemote('findById', function (ctx, modelInstance, next) {
+    log.debug(ctx.req.callContext, 'beforeRemoteFindByIdHook ', model.modelName, 'called');
+    servicePersonalizer.getPersonalizationRuleForModel(model.modelName, ctx, function servicePersonalizationAccessHookGetRuleCb(rule) {
+      if (rule !== null && typeof rule !== 'undefined') {
+        log.debug(ctx.req.callContext, 'beforeRemoteFindByIdHook personalization rule found , rule: ', rule);
+        var fns = servicePersonalizer.applyPersonalizationRule(ctx, rule.personalizationRule);
+        servicePersonalizer.execute(fns, function (err) {
+          if (err) {
+            return next(err);
+          }
+          log.debug(ctx.req.callContext, 'filter', ctx.args.filter);
+          next();
+        });
+      } else {
+        log.debug(ctx.req.callContext, 'beforeRemoteFindByIdHook no rules were found');
         next();
       }
     });
