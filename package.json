@@ -17,9 +17,9 @@
     "assertion-error": "1.1.0",
     "async": "2.6.1",
     "lodash": "4.17.11",
-    "oe-cloud": "git+http://evgit/oecloud.io/oe-cloud.git#2.0.0",
-    "oe-expression": "git+http://evgit/oecloud.io/oe-expression.git#2.0.0",
-    "oe-personalization": "git+http://evgit/oecloud.io/oe-personalization.git#2.0.0"
+    "oe-cloud": "2.0.0",
+    "oe-expression": "2.0.0",
+    "oe-personalization": "2.0.0"
   },
   "devDependencies": {
     "babel-eslint": "7.2.3",
@@ -42,11 +42,11 @@
     "superagent-defaults": "0.1.14",
     "supertest": "3.4.2",
     "loopback-connector-mongodb": "3.9.2",
-    "oe-connector-postgresql": "git+http://evgit/oecloud.io/oe-connector-postgresql.git#2.0.0"
+    "oe-connector-postgresql": "2.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "git@evgit:atul/oe-service-personalization.git"
+    "url": "https://github.com/EdgeVerve/oe-service-personalization.git"
   },
   "license": "MIT"
 }

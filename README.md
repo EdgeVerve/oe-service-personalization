@@ -9,7 +9,7 @@
 ## Install and test
 
 ```sh
-$ git clone http://evgit/atul/oe-service-personalization.git
+$ git clone https://github.com/EdgeVerve/oe-service-personalization.git
 $ cd oe-service-personalization
 $ npm install --no-optional
 $ # Just run test cases
