@@ -38,11 +38,12 @@
     "grunt-mocha-istanbul": "5.0.2",
     "grunt-mocha-test": "0.13.3",
     "istanbul": "0.4.5",
-    "mocha": "5.2.0",
-    "superagent-defaults": "0.1.14",
-    "supertest": "3.4.2",
     "loopback-connector-mongodb": "3.9.2",
-    "oe-connector-postgresql": "git+http://evgit/oecloud.io/oe-connector-postgresql.git#master"
+    "md5": "^2.2.1",
+    "mocha": "5.2.0",
+    "oe-connector-postgresql": "git+http://evgit/oecloud.io/oe-connector-postgresql.git#master",
+    "superagent-defaults": "0.1.14",
+    "supertest": "3.4.2"
   },
   "repository": {
     "type": "git",

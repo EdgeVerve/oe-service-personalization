@@ -1574,7 +1574,6 @@ describe(chalk.blue('service personalization test started...'), function () {
             }
             var results = resp.body;
             expect(results.length).to.be.equal(3);
-            console.log(results);
             // expect(results[0], 'doesn\'t have the field').to.have.key('billingAddress');
             expect('billingAddress' in results[0]).to.be.true;
             expect(results[0].billingAddress).keys('city', 'state', 'lane');
@@ -1618,6 +1617,84 @@ debugger;
             expect(results[0].billingAddress.street).to.be.equal('BTM');
             expect(results[1].billingAddress.street).to.be.equal('Ecity');
             expect(results[2].billingAddress.street).to.be.equal('HSR');
+            done();
+          });
+      });
+    });
+
+    it('t33 apply customFunction for non-existence model', function (done) {
+      // Setup personalization rule
+      var ruleForAndroid = {
+        'modelName': 'ProductCatalog123456',
+        'personalizationRule': {
+          'postCustomFunction': {
+            'functionName': 'customFn',
+          }
+        },
+        'scope': {
+          'device': 'android'
+        }
+      };
+  
+      PersonalizationRule.create(ruleForAndroid, function (err, rule) {
+        if (err) {
+          return done();
+        } else {
+          return done(new Error('Model doesn\'t exist, but still PersonalizationRule created'));
+        }
+      });
+    });
+
+    it('t34 apply customFunction personalizationRule for non-existence function', function (done) {
+      // Setup personalization rule
+      var ruleForAndroid = {
+        'modelName': 'ProductCatalog',
+        'personalizationRule': {
+          'postCustomFunction': {
+            'functionName': 'customFn123',
+          }
+        },
+        'scope': {
+          'device': 'android'
+        }
+      };
+  
+      PersonalizationRule.create(ruleForAndroid, function (err, rule) {
+        if (err) {
+          return done();
+        } else {
+          return done(new Error('Function doesn\'t exist, but still PersonalizationRule created'));
+        }
+      });
+    });
+
+    it('t35 apply postCustomFunction', function (done) {
+      // Setup personalization rule
+      var ruleForAndroid = {
+        'modelName': 'ProductCatalog',
+        'personalizationRule': {
+          'postCustomFunction': {
+            'functionName': 'customFn',
+          }
+        },
+        'scope': {
+          'device': 'android'
+        }
+      };
+  
+      PersonalizationRule.create(ruleForAndroid, function (err, rule) {
+        if (err) {
+          return done(new Error(err));
+        }
+        // var ruleId = rule.id;
+        api.get(productCatalogUrl)
+          .set('Accept', 'application/json')
+          .set('REMOTE_USER', 'testUser')
+          .set('device', 'android')
+          .expect(200).end(function (err, resp) {
+            if (err) {
+              done(err);
+            }
             done();
           });
       });

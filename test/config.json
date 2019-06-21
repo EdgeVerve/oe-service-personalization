@@ -19,5 +19,8 @@
     "cors": false,
     "handleErrors": false
   },
-  "legacyExplorer": false
+  "legacyExplorer": false,
+  "servicePersonalization" : {
+    "customFunctionPath": "D:\\Repos\\oecloud.io\\oe-service-personalization_master\\test\\customFunction"
+  }
 }

@@ -24,6 +24,11 @@ var personalizationRuleModel;
 module.exports = function ServicePersonalization(app, cb) {
   log.debug(log.defaultContext(), 'In service-personalization.js boot script.');
   personalizationRuleModel = app.models.PersonalizationRule;
+  //requiring customFunction
+  let servicePersoConfig = app.get('servicePersonalization');
+  if ('customFunctionPath' in servicePersoConfig) {
+    servicePersonalizer.loadCustomFunction(require(servicePersoConfig.customFunctionPath));
+  }
   // Creating 'before save' and 'after save' observer hooks for PersonlizationRule model
   personalizationRuleModel.observe('before save', personalizationRuleBeforeSave);
   personalizationRuleModel.observe('after save', personalizationRuleAfterSave);
@@ -80,12 +85,27 @@ function personalizationRuleBeforeSave(ctx, next) {
   // It is good to have if we have a declarative way of validating model existence.
   var modelName = data.modelName;
   if (loopback.findModel(modelName, ctx.options)) {
-    next();
+    var nextFlag = true;
+    if (data.personalizationRule.postCustomFunction) {
+      if (!(Object.keys(servicePersonalizer.getCustomFunction()).indexOf(data.personalizationRule.postCustomFunction.functionName) > -1) && nextFlag) {
+        next(new Error('Module \'' + data.personalizationRule.postCustomFunction.functionName + '\' doesn\'t exists.'));
+        nextFlag = false;
+      } 
+    }
+    if (data.personalizationRule.preCustomFunction) {
+      if (!(Object.keys(servicePersonalizer.getCustomFunction()).indexOf(data.personalizationRule.preCustomFunction.functionName) > -1) && nextFlag) {
+        next(new Error('Module \'' + data.personalizationRule.precustomFunction.functionName + '\' doesn\'t exists.'));
+      } 
+    }
+    if(nextFlag){
+      next();
+    }
   } else {
     // Not sure it is the right way to construct error object to sent in the response.
     var err = new Error('Model \'' + modelName + '\' doesn\'t exists.');
     next(err);
   }
+
 }
 
 /**
@@ -257,6 +277,8 @@ function beforeRemoteFindHook(model) {
       if (rule !== null && typeof rule !== 'undefined') {
         log.debug(ctx.req.callContext, 'beforeRemoteFindHook personalization rule found , rule: ', rule);
         var fns = servicePersonalizer.applyPersonalizationRule(ctx, rule.personalizationRule);
+        fns = fns.filter(x => x.type !== 'postCustomFunction');
+        fns = fns.map(x => x.fn);
         servicePersonalizer.execute(fns, function (err) {
           if (err) {
             return next(err);
@@ -279,6 +301,8 @@ function beforeRemoteFindOneHook(model) {
       if (rule !== null && typeof rule !== 'undefined') {
         log.debug(ctx.req.callContext, 'beforeRemoteFindOneHook personalization rule found , rule: ', rule);
         var fns = servicePersonalizer.applyPersonalizationRule(ctx, rule.personalizationRule);
+        fns = fns.filter(x => x.type !== 'postCustomFunction');
+        fns = fns.map(x => x.fn);
         servicePersonalizer.execute(fns, function (err) {
           if (err) {
             return next(err);
@@ -301,6 +325,8 @@ function beforeRemoteFindByIdHook(model) {
       if (rule !== null && typeof rule !== 'undefined') {
         log.debug(ctx.req.callContext, 'beforeRemoteFindByIdHook personalization rule found , rule: ', rule);
         var fns = servicePersonalizer.applyPersonalizationRule(ctx, rule.personalizationRule);
+        fns = fns.filter(x => x.type !== 'postCustomFunction');
+        fns = fns.map(x => x.fn);
         servicePersonalizer.execute(fns, function (err) {
           if (err) {
             return next(err);
@@ -329,9 +355,9 @@ function afterRemotePersonalizationExec(model, ctx, next) {
     if (rule !== null && typeof rule !== 'undefined') {
       log.debug(ctx.req.callContext, 'afterRemotePersonalizationExec personalization rule found , rule: ', rule);
       log.debug(ctx.req.callContext, 'applying PersonalizationRule now');
-
       log.debug(ctx.req.callContext, 'beforeRemoteFindHook personalization rule found , rule: ', rule);
       var fns = servicePersonalizer.applyPersonalizationRule(ctx, rule.personalizationRule);
+      fns = fns.map(x => x.fn);
       servicePersonalizer.execute(fns, function (err) {
         if (err) {
           return next(err);
