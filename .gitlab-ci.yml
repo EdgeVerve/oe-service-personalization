@@ -49,7 +49,7 @@ npminstall:
       - node_modules/
       - artifacts/
   tags:
-    - CEP_RUNNER_EE
+    - CEP_RUNNER
 
 
 mongotest:
@@ -73,7 +73,7 @@ mongotest:
       - artifacts/
     when: on_failure
   tags:
-    - CEP_RUNNER_EE
+    - CEP_RUNNER
 
 postgrestest:
   stage: pre-build-test
@@ -89,7 +89,7 @@ postgrestest:
     - time npm install --no-optional
     - npm run grunt-cover
   tags:
-    - CEP_RUNNER_EE    
+    - CEP_RUNNER    
 
     
 oracletest:
@@ -116,7 +116,7 @@ oracletest:
     - echo "Oracle user details:"${ORACLE_USERNAME}"/"${ORACLE_PASSWORD}
     - npm run grunt-cover
   tags:
-    - CEP_RUNNER_EE
+    - CEP_RUNNER
 
 pushartifacts:
   stage: push-artifacts
