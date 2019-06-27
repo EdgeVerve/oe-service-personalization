@@ -24,7 +24,7 @@ var personalizationRuleModel;
 module.exports = function ServicePersonalization(app, cb) {
   log.debug(log.defaultContext(), 'In service-personalization.js boot script.');
   personalizationRuleModel = app.models.PersonalizationRule;
-  //requiring customFunction
+  // requiring customFunction
   let servicePersoConfig = app.get('servicePersonalization');
   if ('customFunctionPath' in servicePersoConfig) {
     servicePersonalizer.loadCustomFunction(require(servicePersoConfig.customFunctionPath));
@@ -90,14 +90,14 @@ function personalizationRuleBeforeSave(ctx, next) {
       if (!(Object.keys(servicePersonalizer.getCustomFunction()).indexOf(data.personalizationRule.postCustomFunction.functionName) > -1) && nextFlag) {
         next(new Error('Module \'' + data.personalizationRule.postCustomFunction.functionName + '\' doesn\'t exists.'));
         nextFlag = false;
-      } 
+      }
     }
     if (data.personalizationRule.preCustomFunction) {
       if (!(Object.keys(servicePersonalizer.getCustomFunction()).indexOf(data.personalizationRule.preCustomFunction.functionName) > -1) && nextFlag) {
         next(new Error('Module \'' + data.personalizationRule.precustomFunction.functionName + '\' doesn\'t exists.'));
-      } 
+      }
     }
-    if(nextFlag){
+    if (nextFlag) {
       next();
     }
   } else {
@@ -105,7 +105,6 @@ function personalizationRuleBeforeSave(ctx, next) {
     var err = new Error('Model \'' + modelName + '\' doesn\'t exists.');
     next(err);
   }
-
 }
 
 /**
