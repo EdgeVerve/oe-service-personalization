@@ -8,6 +8,8 @@ function customFn(ctx) {
         });
     } else if(ctx.res.body) {
         ctx.res.body.name = md5(ctx.res.body.name);
+    } else {
+        ctx.result.name = md5(ctx.result.name);
     }
 }
 

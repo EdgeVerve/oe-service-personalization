@@ -27,7 +27,11 @@ module.exports = function ServicePersonalization(app, cb) {
   // requiring customFunction
   let servicePersoConfig = app.get('servicePersonalization');
   if ('customFunctionPath' in servicePersoConfig) {
-    servicePersonalizer.loadCustomFunction(require(servicePersoConfig.customFunctionPath));
+    try {
+      servicePersonalizer.loadCustomFunction(require(servicePersoConfig.customFunctionPath));
+    } catch(e) {
+      console.error(e);
+    }
   }
   // Creating 'before save' and 'after save' observer hooks for PersonlizationRule model
   personalizationRuleModel.observe('before save', personalizationRuleBeforeSave);
