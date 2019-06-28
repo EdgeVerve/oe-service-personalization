@@ -1598,7 +1598,7 @@ describe(chalk.blue('service personalization test started...'), function () {
       };
 
       PersonalizationRule.create(ruleForAndroid, defContext, function (err, rule) {
-debugger;
+        debugger;
         if (err) {
           throw new Error(err);
         }
@@ -1621,7 +1621,9 @@ debugger;
           });
       });
     });
+  });
 
+  describe('CustomFunction Tests - ', function () {
     it('t33 apply customFunction for non-existence model', function (done) {
       // Setup personalization rule
       var ruleForAndroid = {
@@ -1635,7 +1637,7 @@ debugger;
           'device': 'android'
         }
       };
-  
+
       PersonalizationRule.create(ruleForAndroid, function (err, rule) {
         if (err) {
           return done();
@@ -1658,7 +1660,7 @@ debugger;
           'device': 'android'
         }
       };
-  
+
       PersonalizationRule.create(ruleForAndroid, function (err, rule) {
         if (err) {
           return done();
@@ -1668,7 +1670,7 @@ debugger;
       });
     });
 
-    it('t35 apply postCustomFunction', function (done) {
+    it('t35 apply postCustomFunction for get request', function (done) {
       // Setup personalization rule
       var ruleForAndroid = {
         'modelName': 'ProductCatalog',
@@ -1681,7 +1683,7 @@ debugger;
           'device': 'android'
         }
       };
-  
+
       PersonalizationRule.create(ruleForAndroid, function (err, rule) {
         if (err) {
           return done(new Error(err));
@@ -1696,6 +1698,51 @@ debugger;
               done(err);
             }
             done();
+          });
+      });
+    });
+
+    it('t36 apply postCustomFunction for post request', function (done) {
+      // Setup personalization rule
+      var ruleForAndroid = {
+        'modelName': 'ProductCatalog',
+        'personalizationRule': {
+          'preCustomFunction': {
+            'functionName': 'hashReqBody',
+          }
+        },
+        'scope': {
+          'device': 'android'
+        }
+      };
+      PersonalizationRule.create(ruleForAndroid, function (err, rule) {
+        if (err) {
+          return done(new Error(err));
+        }
+        var postData = {
+          'name': 'customOven',
+          'desc': 'Customeized oven',
+          'category': 'electronics',
+          'price': {
+            'value': 10000,
+            'currency': 'inr'
+          },
+          'isAvailable': true
+        };
+
+        api.post(productCatalogUrl + `?access_token=${accessToken}`)
+          .set('Accept', 'application/json')
+          .set('REMOTE_USER', 'testUser')
+          .set('device', 'android')
+          .send(postData)
+          .expect(200).end(function (err, resp) {
+            if (err) {
+              done(err);
+            } else {
+              var result = JSON.parse(resp.text);
+              expect(result.name).to.not.equal(postData.name);
+              done();
+            }
           });
       });
     });

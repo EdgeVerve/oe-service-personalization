@@ -61,6 +61,7 @@ mongotest:
     - export DB_NAME=${CI_PIPELINE_ID}_mongo
     - npm config set registry http://10.188.25.62:9002/
     - time npm install --no-optional
+    - export custom_function_path="${CI_PROJECT_DIR}/test/customFunction"
     - npm run grunt-cover
     - mkdir -p ./artifacts/${CI_PROJECT_NAME}/
     - cp -r coverage ./artifacts/${CI_PROJECT_NAME}/
@@ -86,6 +87,7 @@ postgrestest:
     # - time npm install git+http://evgit/oecloud.io/loopback-connector-postgresql.git --save    
     - npm config set registry http://10.188.25.62:9002/
     - time npm install --no-optional
+    - export custom_function_path="${CI_PROJECT_DIR}/test/customFunction"
     - npm run grunt-cover
   tags:
     - CEP_RUNNER    
@@ -113,6 +115,7 @@ oracletest:
     - export ORACLE_USERNAME=$(echo $ORACLE_USERNAME | tr '[:lower:]' '[:upper:]')
     - export ORACLE_PASSWORD=$(echo $CI_PROJECT_NAMESPACE | tr '[:upper:]' '[:lower:]')
     - echo "Oracle user details:"${ORACLE_USERNAME}"/"${ORACLE_PASSWORD}
+    - export custom_function_path="${CI_PROJECT_DIR}/test/customFunction"
     - npm run grunt-cover
   tags:
     - CEP_RUNNER
