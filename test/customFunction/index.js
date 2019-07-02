@@ -6,8 +6,6 @@ function customFn(ctx) {
             item.name = md5(item.name);
             return item;
         });
-    } else if(ctx.res.body) {
-        ctx.res.body.name = md5(ctx.res.body.name);
     } else {
         ctx.result.name = md5(ctx.result.name);
     }
