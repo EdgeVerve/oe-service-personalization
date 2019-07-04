@@ -26,7 +26,7 @@ module.exports = function ServicePersonalization(app, cb) {
   personalizationRuleModel = app.models.PersonalizationRule;
   // requiring customFunction
   let servicePersoConfig = app.get('servicePersonalization');
-  if ('customFunctionPath' in servicePersoConfig) {
+  if (servicePersoConfig && 'customFunctionPath' in servicePersoConfig) {
     try {
       servicePersonalizer.loadCustomFunction(require(servicePersoConfig.customFunctionPath));
     } catch (e) {
