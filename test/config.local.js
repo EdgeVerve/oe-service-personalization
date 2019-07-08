@@ -5,7 +5,7 @@ if (process.env.custom_function_path && !config.servicePersonalization) {
     config.servicePersonalization = new Object({
         customFunctionPath: process.env.custom_function_path
     });
-} else if(process.env.custom_function_path && config.servicePersonalization) {
+} else if (process.env.custom_function_path && config.servicePersonalization) {
     config.servicePersonalization.customFunctionPath = process.env.custom_function_path;
 } else {
     config.servicePersonalization.customFunctionPath = config.servicePersonalization.customFunctionPath
