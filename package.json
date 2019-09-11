@@ -1,6 +1,6 @@
 {
   "name": "oe-service-personalization",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "oe-cloud modularization project",
   "engines": {
     "node": ">=6"
@@ -16,7 +16,7 @@
   "dependencies": {
     "assertion-error": "1.1.0",
     "async": "2.6.1",
-    "lodash": "4.17.11",
+    "lodash": "4.17.14",
     "oe-cloud": "git+http://evgit/oecloud.io/oe-cloud.git#master",
     "oe-expression": "git+http://evgit/oecloud.io/oe-expression.git#master",
     "oe-personalization": "git+http://evgit/oecloud.io/oe-personalization.git#master"
