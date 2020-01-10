@@ -53,10 +53,9 @@ describe(chalk.blue('service personalization test started...'), function () {
           // log.error(err);
 
           return done(err);
-        } else {
-          // accessToken = res.body.id;
-          return done();
         }
+        // accessToken = res.body.id;
+        return done();
       });
   });
 
@@ -73,10 +72,9 @@ describe(chalk.blue('service personalization test started...'), function () {
         if (err) {
           // log.error(err);
           return done(err);
-        } else {
-          accessToken = res.body.id;
-          return done();
         }
+        accessToken = res.body.id;
+        return done();
       });
   });
   PersonalizationRule = loopback.findModel('PersonalizationRule');
@@ -91,7 +89,7 @@ describe(chalk.blue('service personalization test started...'), function () {
         'currency': 'inr'
       },
       'isAvailable': true,
-      "productOwnerId": 1
+      'productOwnerId': 1
     };
     var item2 = {
       'name': 'office chair',
@@ -561,7 +559,7 @@ describe(chalk.blue('service personalization test started...'), function () {
       });
     });
   // the below won't work in postgres or oracle. Since
-  // JSON objects are not represented correctly for the 
+  // JSON objects are not represented correctly for the
   // necessary operation to happen correctly. Hence the
   // exclusion.
   xit('t12 sort: should handle nested sorting', function (done) {
@@ -580,7 +578,6 @@ describe(chalk.blue('service personalization test started...'), function () {
 
 
     PersonalizationRule.create(ruleForAndroid, {}, function (err, rule) {
-
       if (err) {
         throw new Error(err);
       }
@@ -598,7 +595,6 @@ describe(chalk.blue('service personalization test started...'), function () {
           expect(results[0].name).to.be.equal('office chair');
           expect(results[0].price.value).to.be.equal(5000);
           done();
-
         });
     });
   });
@@ -691,11 +687,10 @@ describe(chalk.blue('service personalization test started...'), function () {
     };
 
     PersonalizationRule.create(ruleForAndroid, {}, function (err, rule) {
-
       if (err) {
         throw new Error(err);
       }
-      //var ruleId = rule.id;
+      // var ruleId = rule.id;
 
       var postData = {
         'product name': 'o1ven',
@@ -723,7 +718,6 @@ describe(chalk.blue('service personalization test started...'), function () {
             done();
           }
         });
-
     });
   });
 
@@ -745,11 +739,10 @@ describe(chalk.blue('service personalization test started...'), function () {
       };
 
       PersonalizationRule.create(ruleForAndroid, {}, function (err, rule) {
-
         if (err) {
           throw new Error(err);
         }
-        //var ruleId = rule.id;
+        // var ruleId = rule.id;
 
         var postData = {
           'name': 'new oven',
@@ -776,10 +769,8 @@ describe(chalk.blue('service personalization test started...'), function () {
               done();
             }
           });
-
       });
     });
-
 
 
   it('t17 should replace field names and field value names when scope of personalization rule matches', function (done) {
@@ -814,7 +805,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     //       'name': {
     //         'oven': 'new_oven_ios'
     //       }
-    //     }        
+    //     }
     //   },
     //   'scope': {
     //     'device': 'ios'
@@ -842,7 +833,6 @@ describe(chalk.blue('service personalization test started...'), function () {
     var personalizationRuleArray = [ruleForAndroid, ruleForIos];
 
     PersonalizationRule.create(personalizationRuleArray, {}, function (err, rules) {
-
       if (err) {
         throw new Error(err);
       }
@@ -891,13 +881,10 @@ describe(chalk.blue('service personalization test started...'), function () {
               done();
             });
         });
-
-
-
     });
   });
 
-  //Nested input values
+  // Nested input values
   it('t18 (Nested input) should replace field names and field	value names when scope of personalization rule matches while posting', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
@@ -926,7 +913,6 @@ describe(chalk.blue('service personalization test started...'), function () {
     var personalizationRule = ruleForAndroid;
 
     PersonalizationRule.create(personalizationRule, {}, function (err, rules) {
-
       var postData = {
         'name': 'oven',
         'desc': 'oven',
@@ -993,7 +979,6 @@ describe(chalk.blue('service personalization test started...'), function () {
     var personalizationRule = ruleForAndroid;
 
     PersonalizationRule.create(personalizationRule, {}, function (err, rules) {
-
       if (err) {
         throw new Error(err);
       }
@@ -1007,16 +992,14 @@ describe(chalk.blue('service personalization test started...'), function () {
           var result = results.filter(function (obj) {
             if (obj.id === '9898') {
               return true;
-            } else {
-              return false;
             }
+            return false;
           });
           expect(result[0].price).keys('price_currency', 'value');
           expect(result[0]).to.include.keys('product_name_android', 'product_description_android');
           expect(result[0].product_name_android).to.be.equal('new_oven_android');
           expect(result[0].price.price_currency).to.be.equal('IndianRupee');
           done();
-
         });
     });
   });
@@ -1049,7 +1032,6 @@ describe(chalk.blue('service personalization test started...'), function () {
     var personalizationRule = ruleForAndroid;
 
     PersonalizationRule.create(personalizationRule, {}, function (err, rules) {
-
       if (err) {
         throw new Error(err);
       }
@@ -1063,16 +1045,14 @@ describe(chalk.blue('service personalization test started...'), function () {
           var result = results.filter(function (obj) {
             if (obj.id === '9898') {
               return true;
-            } else {
-              return false;
             }
+            return false;
           });
           expect(result[0].price).keys('currency', 'value');
           expect(result[0]).to.include.keys('category', 'price', 'isAvailable', 'id', 'name', 'desc');
           expect(result[0].name).to.be.equal('oven');
           expect(result[0].price.currency).to.be.equal('inr');
           done();
-
         });
     });
   });
@@ -1110,10 +1090,8 @@ describe(chalk.blue('service personalization test started...'), function () {
           expect(results[0]).to.include.keys('ProductCatalog');
           expect(results[0].ProductCatalog).to.have.length(1);
           done();
-
         });
     });
-
   });
 
   it('t22 should replace field value names array datatype while posting when fieldValueReplace personalization is configured', function (done) {
@@ -1124,7 +1102,7 @@ describe(chalk.blue('service personalization test started...'), function () {
         'fieldValueReplace': {
           'keywords': {
             'Alpha': 'A',
-            "Bravo": 'B'
+            'Bravo': 'B'
           }
         }
       },
@@ -1145,7 +1123,7 @@ describe(chalk.blue('service personalization test started...'), function () {
             'value': 5000,
             'currency': 'inr'
           },
-          "keywords": ["Alpha", "Bravo", "Charlie", "Delta"],
+          'keywords': ['Alpha', 'Bravo', 'Charlie', 'Delta'],
           'isAvailable': true,
           'id': 'watch1'
         };
@@ -1196,19 +1174,19 @@ describe(chalk.blue('service personalization test started...'), function () {
   it('t24 should be able to create a fieldMask personalization rule, post data and get response in specific format', function (done) {
     // Setup personalization rule
     var ruleForMobile = {
-      "modelName": "ProductCatalog",
-      "personalizationRule": {
-        "fieldMask": {
-          "modelNo": {
-            "pattern": "([0-9]{3})([0-9]{3})([0-9]{4})",
-            "maskCharacter": "X",
-            "format": "($1) $2-$3",
-            "mask": ['$3']
+      'modelName': 'ProductCatalog',
+      'personalizationRule': {
+        'fieldMask': {
+          'modelNo': {
+            'pattern': '([0-9]{3})([0-9]{3})([0-9]{4})',
+            'maskCharacter': 'X',
+            'format': '($1) $2-$3',
+            'mask': ['$3']
           }
         }
       },
-      "scope": {
-        "region": "us"
+      'scope': {
+        'region': 'us'
       }
     };
 
@@ -1224,10 +1202,10 @@ describe(chalk.blue('service personalization test started...'), function () {
             'value': 89000,
             'currency': 'inr'
           },
-          "keywords": ["Alpha", "Bravo"],
+          'keywords': ['Alpha', 'Bravo'],
           'isAvailable': true,
           'id': 'watch2',
-          "modelNo": "1233567891"
+          'modelNo': '1233567891'
         };
 
         api.post(productCatalogUrl + '?access_token=' + accessToken)
@@ -1276,19 +1254,19 @@ describe(chalk.blue('service personalization test started...'), function () {
   it('t26 should be able to create a fieldMask personalization rule, post data and get response in specific format', function (done) {
     // Setup personalization rule
     var ruleForMobile = {
-      "modelName": "ProductCatalog",
-      "personalizationRule": {
-        "fieldMask": {
-          "modelNo": {
-            "pattern": "([0-9]{5})([0-9]{1})([0-9]{4})",
-            "maskCharacter": "-",
-            "format": "+91 $1 $2$3",
-            "mask": ['$3']
+      'modelName': 'ProductCatalog',
+      'personalizationRule': {
+        'fieldMask': {
+          'modelNo': {
+            'pattern': '([0-9]{5})([0-9]{1})([0-9]{4})',
+            'maskCharacter': '-',
+            'format': '+91 $1 $2$3',
+            'mask': ['$3']
           }
         }
       },
-      "scope": {
-        "region": "in"
+      'scope': {
+        'region': 'in'
       }
     };
 
@@ -1304,10 +1282,10 @@ describe(chalk.blue('service personalization test started...'), function () {
             'value': 23400,
             'currency': 'inr'
           },
-          "keywords": ["Charlie", "India"],
+          'keywords': ['Charlie', 'India'],
           'isAvailable': true,
           'id': 'watch3',
-          "modelNo": "9080706050"
+          'modelNo': '9080706050'
         };
 
         api.post(productCatalogUrl + '?access_token=' + accessToken)
@@ -1356,18 +1334,18 @@ describe(chalk.blue('service personalization test started...'), function () {
   it('t28 should get result in specific format on get when fieldMask personalization rule is applied no masking', function (done) {
     // Setup personalization rule
     var ruleForMobile = {
-      "modelName": "ProductCatalog",
-      "personalizationRule": {
-        "fieldMask": {
-          "modelNo": {
-            "pattern": "([0-9]{5})([0-9]{1})([0-9]{4})",
-            "maskCharacter": "X",
-            "format": "+91 $1 $2$3"
+      'modelName': 'ProductCatalog',
+      'personalizationRule': {
+        'fieldMask': {
+          'modelNo': {
+            'pattern': '([0-9]{5})([0-9]{1})([0-9]{4})',
+            'maskCharacter': 'X',
+            'format': '+91 $1 $2$3'
           }
         }
       },
-      "scope": {
-        "region": "ka"
+      'scope': {
+        'region': 'ka'
       }
     };
 
@@ -1395,24 +1373,23 @@ describe(chalk.blue('service personalization test started...'), function () {
           });
       }
     });
-
   });
 
   it('t29 should get result on get when fieldMask personalization rule is applied and no format is given', function (done) {
     // Setup personalization rule
     var ruleForMobile = {
-      "modelName": "ProductCatalog",
-      "personalizationRule": {
-        "fieldMask": {
-          "modelNo": {
-            "pattern": "([0-9]{5})([0-9]{1})([0-9]{4})",
-            "maskCharacter": "X",
-            "mask": ['$3']
+      'modelName': 'ProductCatalog',
+      'personalizationRule': {
+        'fieldMask': {
+          'modelNo': {
+            'pattern': '([0-9]{5})([0-9]{1})([0-9]{4})',
+            'maskCharacter': 'X',
+            'mask': ['$3']
           }
         }
       },
-      "scope": {
-        "region": "kl"
+      'scope': {
+        'region': 'kl'
       }
     };
 
@@ -1440,7 +1417,6 @@ describe(chalk.blue('service personalization test started...'), function () {
           });
       }
     });
-
   });
 
   describe('Relation Tests - ', function () {
@@ -1481,10 +1457,8 @@ describe(chalk.blue('service personalization test started...'), function () {
 
       ModelDefinition.create([CustomerModelSpec, AddressModelSpec], defContext, function (err, data) {
         if (err) {
-          done(err)
-        }
-        else {
-
+          done(err);
+        } else {
           AddressModel = loopback.getModel('Address', defContext);
           CustomerModel = loopback.getModel('Customer', defContext);
           expect(AddressModel).to.not.be.undefined;
@@ -1492,7 +1466,6 @@ describe(chalk.blue('service personalization test started...'), function () {
           done();
         }
       });
-
     });
 
     before('setup data', function (done) {
@@ -1529,8 +1502,7 @@ describe(chalk.blue('service personalization test started...'), function () {
       CustomerModel.create(customerData, {}, function (err) {
         if (err) {
           done(err);
-        }
-        else {
+        } else {
           done();
         }
       });
@@ -1579,7 +1551,6 @@ describe(chalk.blue('service personalization test started...'), function () {
             expect(results[0].billingAddress).keys('city', 'state', 'lane');
             expect(results[0]).to.include.keys('name', 'age', 'billingAddress', 'id');
             done();
-
           });
       });
     });
@@ -1598,7 +1569,6 @@ describe(chalk.blue('service personalization test started...'), function () {
       };
 
       PersonalizationRule.create(ruleForAndroid, defContext, function (err, rule) {
-        debugger;
         if (err) {
           throw new Error(err);
         }
@@ -1630,7 +1600,7 @@ describe(chalk.blue('service personalization test started...'), function () {
         'modelName': 'ProductCatalog123456',
         'personalizationRule': {
           'postCustomFunction': {
-            'functionName': 'customFn',
+            'functionName': 'customFn'
           }
         },
         'scope': {
@@ -1641,9 +1611,8 @@ describe(chalk.blue('service personalization test started...'), function () {
       PersonalizationRule.create(ruleForAndroid, function (err, rule) {
         if (err) {
           return done();
-        } else {
-          return done(new Error('Model doesn\'t exist, but still PersonalizationRule created'));
         }
+        return done(new Error('Model doesn\'t exist, but still PersonalizationRule created'));
       });
     });
 
@@ -1653,7 +1622,7 @@ describe(chalk.blue('service personalization test started...'), function () {
         'modelName': 'ProductCatalog',
         'personalizationRule': {
           'postCustomFunction': {
-            'functionName': 'customFn123',
+            'functionName': 'customFn123'
           }
         },
         'scope': {
@@ -1664,9 +1633,8 @@ describe(chalk.blue('service personalization test started...'), function () {
       PersonalizationRule.create(ruleForAndroid, function (err, rule) {
         if (err) {
           return done();
-        } else {
-          return done(new Error('Function doesn\'t exist, but still PersonalizationRule created'));
         }
+        return done(new Error('Function doesn\'t exist, but still PersonalizationRule created'));
       });
     });
 
@@ -1676,7 +1644,7 @@ describe(chalk.blue('service personalization test started...'), function () {
         'modelName': 'ProductCatalog',
         'personalizationRule': {
           'postCustomFunction': {
-            'functionName': 'customFn',
+            'functionName': 'customFn'
           }
         },
         'scope': {
@@ -1708,7 +1676,7 @@ describe(chalk.blue('service personalization test started...'), function () {
         'modelName': 'ProductCatalog',
         'personalizationRule': {
           'preCustomFunction': {
-            'functionName': 'hashReqBody',
+            'functionName': 'hashReqBody'
           }
         },
         'scope': {
@@ -1746,9 +1714,7 @@ describe(chalk.blue('service personalization test started...'), function () {
           });
       });
     });
-
   });
-
 });
 
 
