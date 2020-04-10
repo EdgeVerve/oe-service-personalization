@@ -5,7 +5,8 @@
   },
   {
     "path": "oe-personalization",
-    "enabled": true
+    "enabled": true,
+    "autoEnableMixins" : true
   },
   {
     "path": "./",
