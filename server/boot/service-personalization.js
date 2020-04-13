@@ -389,7 +389,7 @@ function beforeRemotePersonalizationExec(model, ctx, next) {
       log.debug(ctx.req.callContext, 'beforeRemotePersonalizationExec personalization rule found , rule: ', rule);
       log.debug(ctx.req.callContext, 'applying PersonalizationRule now');
       var fns = servicePersonalizer.applyReversePersonalizationRule(ctx, rule.personalizationRule);
-      fns = fns.map(x => x.fn)
+      fns = fns.map(x => x.fn);
       servicePersonalizer.execute(fns, function (err) {
         if (err) {
           return next(err);
