@@ -1,0 +1,32 @@
+{
+  "name": "MyModel",
+  "base": "BaseEntity",
+  "idInjection": true,
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "require": true
+    },
+    "desc": {
+      "type": "string"
+    },
+    "price": {
+      "type": "object"
+    },
+    "isAvailable": {
+      "type": "boolean"
+    },
+    "modelNo": "string",
+    "keywords": [
+      "string"
+    ]
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {},
+  "strict": true
+}

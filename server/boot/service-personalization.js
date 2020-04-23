@@ -156,6 +156,9 @@ function attachRemoteHooksToModel(modelName, options) {
     beforeRemoteFindHook(model);
     beforeRemoteFindOneHook(model);
     beforeRemoteFindByIdHook(model);
+    // model.beforeRemote('**', function(ctx, next) {
+      
+    // });
   }
 }
 
