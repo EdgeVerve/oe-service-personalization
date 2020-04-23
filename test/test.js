@@ -159,7 +159,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it('t1 should replace field names in response when fieldReplace personalization is configured', function (done) {
+  it.only('t1 should replace field names in response when fieldReplace personalization is configured', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',

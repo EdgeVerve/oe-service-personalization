@@ -55,7 +55,8 @@ const nextTick = function () {
   });
 }
 module.exports = function ServicePersonalizationMixin(TargetModel) {
-  TargetModel.beforeRemote('**', function () {
+  log.debug(log.defaultContext(), `Applying service personalization for ${TargetModel.definition.name}`);
+  TargetModel.afterRemote('**', function () {
 
     let args = slice.call(arguments);
     let ctx = args[0];
