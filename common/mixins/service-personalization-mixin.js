@@ -23,79 +23,84 @@
 const logger = require('oe-logger');
 const log = logger('service-personalization-mixin');
 const { applyServicePersonalization } = require('./../../lib/service-personalizer');
+const { nextTick, parseMethodString, slice } = require('./../../lib/utils');
 
-const ALLOWED_METHOD = ['create', 'find', 'fineOne'];
-
-const parseMethodString = str => {
-  return str.split('.').reduce((obj, comp, idx, arr) => {
-    let ret = {};
-    let length = arr.length;
-    if (idx === 0) {
-      ret.modelName = comp;
-    }
-    else if (length === 3 && idx !== length - 1) {
-      ret.isStatic = false;
-    }
-    else if (length === 3 && idx == length - 1) {
-      ret.methodName = comp;
-    }
-    else {
-      ret.isStatic = true;
-      ret.methodName = comp;
-    }
-    return Object.assign({}, obj, ret);
-  }, {});
-}
-const slice = [].slice;
-const nextTick = function () {
-  let args = slice.call(arguments);
-  let cb = args.shift();
-  return process.nextTick(() => {
-    cb.apply(null, args);
-  });
-}
 module.exports = function ServicePersonalizationMixin(TargetModel) {
   log.debug(log.defaultContext(), `Applying service personalization for ${TargetModel.definition.name}`);
   TargetModel.afterRemote('**', function () {
 
-    let args = slice.call(arguments);
+    let args = slice(arguments);
     let ctx = args[0];
-    let next = args.slice(-1)[0];
-    let callCtx = ctx.req.callContext;
-    log.debug(callCtx, `MethodString: ${ctx.methodString}`);
+    let next = args[args.length - 1];
+    // let callCtx = ctx.req.callContext;
+    log.debug(ctx, `afterRemote: MethodString: ${ctx.methodString}`);
 
     ctxInfo = parseMethodString(ctx.methodString);
-    if (ALLOWED_METHOD.includes(ctxInfo.methodName)) {
-      let data = null;
-      if (ctxInfo.isStatic) {
-        switch (ctxInfo.methodName) {
-          case 'create':
-            data = ctx.instance
-            break;
-          case 'find':
-            data = ctx.result;
-            break;
-          default:
-            log.debug(callCtx, `Unhandled: ${ctx.methodString}`);
-            data = {}
-        }
-
-        let personalizationOptions = {
-          reverse: true,
-          context: callCtx
-        };
-
-        return applyServicePersonalization(ctxInfo.modelName, data, personalizationOptions, function(err, personalizedData) {
-          if(err) {
-            next(err);
-          }
-          else {
-            next();
-          }
-        });
+    
+    let data = null;
+    if (ctxInfo.isStatic) {
+      switch (ctxInfo.methodName) {
+        case 'create':
+          data = ctx.instance
+          break;
+        case 'find':
+          data = ctx.result;
+          break;
+        default:
+          log.debug(ctx, `afterRemote: Unhandled: ${ctx.methodString}`);
+          data = {}
       }
+
+      let personalizationOptions = {
+        isBeforeRemote: false,
+        context: ctx
+      };
+
+      return applyServicePersonalization(ctxInfo.modelName, data, personalizationOptions, function(err) {
+        if(err) {
+          next(err);
+        }
+        else {
+          next();
+        }
+      });
     }
 
+    log.debug(callCtx, `afterRemote: Unhandled non-static: ${ctx.methodString}`);
+    nextTick(next);
+  });
+
+  TargetModel.beforeRemote('**', function() {
+    let args = slice(arguments);
+    let ctx = args[0];
+    let next = args[args.length - 1];
+    // let callCtx = ctx.req.callContext;
+
+    log.debug(ctx, `beforeRemote: MethodString: ${ctx.methodString}`);
+
+    ctxInfo = parseMethodString(ctx.methodString);
+
+    if(ctxInfo.isStatic) {
+      switch(ctxInfo.methodString) {
+        case 'find':
+          data = {}
+          break;
+        default:
+          data = {}
+          log.debug(ctx, `beforeRemote: Unhandled ${ctx.methodString}`);
+      }
+
+      let personalizationOptions = {
+        isBeforeRemote: true,
+        context: ctx
+      };
+
+      return applyServicePersonalization(ctxInfo.modelName, data, personalizationOptions, function(err){
+        next(err);
+      });
+    }
+    
+    log.debug(ctx, `beforeRemote: Unhandled non-static ${ctx.methodString}`);
     nextTick(next);
   });
 }
