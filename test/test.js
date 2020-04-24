@@ -261,7 +261,7 @@ describe(chalk.blue('service personalization test started...'), function () {
   });
 
   // sort test cases
-  it('t4 single sort condition:  should return the sorted result when sort personalization rule is configured.', function (done) {
+  it.only('t4 single sort condition:  should return the sorted result when sort personalization rule is configured.', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
@@ -295,7 +295,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it('t5 single sort condition: should sort in ascending order when the sort order is not specified', function (done) {
+  it.only('t5 single sort condition: should sort in ascending order when the sort order is not specified', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
@@ -333,7 +333,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it('t6 single sort condition: should accept the keywords like asc,ascending,desc or descending as sort order', function (done) {
+  it.only('t6 single sort condition: should accept the keywords like asc,ascending,desc or descending as sort order', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
@@ -368,7 +368,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it('t7 smultiple sort condition: should return sorted result when personalization rule with multiple sort is configured', function (done) {
+  it.only('t7 smultiple sort condition: should return sorted result when personalization rule with multiple sort is configured', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
@@ -406,7 +406,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it('t8 multiple sort condition: should omit the sort expression whose order value(ASC|DSC) doesnt match the different cases', function (done) {
+  it.only('t8 multiple sort condition: should omit the sort expression whose order value(ASC|DSC) doesnt match the different cases', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
@@ -487,7 +487,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it('t10 multiple sort: should handle duplicate sort expressions', function (done) {
+  it.only('t10 multiple sort: should handle duplicate sort expressions', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
@@ -522,7 +522,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it('t11 multiple sort: should handle clashing sort expressions.(Eg:name ASC in personalization rule and name DESC from API, in this case consider name DESC from API)',
+  it.only('t11 multiple sort: should handle clashing sort expressions.(Eg:name ASC in personalization rule and name DESC from API, in this case consider name DESC from API)',
     function (done) {
       // Setup personalization rule
       var ruleForAndroid = {
