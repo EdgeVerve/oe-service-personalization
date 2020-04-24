@@ -211,7 +211,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     'id': 2
   };
 
-  it('t2 create records in product owners', function (done) {
+  it.only('t2 create records in product owners', function (done) {
     ProductOwner = loopback.findModel('ProductOwner');
     ProductOwner.create(owner1, function (err) {
       if (err) {
@@ -223,7 +223,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it('t3 should replace field names in response when fieldReplace personalization is configured', function (done) {
+  it.only('t3 should replace field names in response when fieldReplace personalization is configured', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
@@ -599,7 +599,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it('t13 Mask:should mask the given fields and not send them to the response', function (done) {
+  it.only('t13 Mask:should mask the given fields and not send them to the response', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',

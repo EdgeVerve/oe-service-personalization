@@ -60,7 +60,7 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
 
     let args = slice.call(arguments);
     let ctx = args[0];
-    let next = args.slice(-1);
+    let next = args.slice(-1)[0];
     let callCtx = ctx.req.callContext;
     log.debug(callCtx, `MethodString: ${ctx.methodString}`);
 
@@ -71,6 +71,9 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
         switch (ctxInfo.methodName) {
           case 'create':
             data = ctx.instance
+            break;
+          case 'find':
+            data = ctx.result;
             break;
           default:
             log.debug(callCtx, `Unhandled: ${ctx.methodString}`);
