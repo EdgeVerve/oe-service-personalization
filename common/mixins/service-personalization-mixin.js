@@ -41,7 +41,7 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
     if (ctxInfo.isStatic) {
       switch (ctxInfo.methodName) {
         case 'create':
-          data = ctx.instance
+          data = ctx.result;
           break;
         case 'find':
           data = ctx.result;
@@ -66,7 +66,7 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
       });
     }
 
-    log.debug(callCtx, `afterRemote: Unhandled non-static: ${ctx.methodString}`);
+    log.debug(ctx, `afterRemote: Unhandled non-static: ${ctx.methodString}`);
     nextTick(next);
   });
 
@@ -81,9 +81,12 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
     ctxInfo = parseMethodString(ctx.methodString);
 
     if(ctxInfo.isStatic) {
-      switch(ctxInfo.methodString) {
+      switch(ctxInfo.methodName) {
         case 'find':
           data = {}
+          break;
+        case 'create':
+          data = ctx.req.body;
           break;
         default:
           data = {}
