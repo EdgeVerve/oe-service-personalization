@@ -46,6 +46,9 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
         case 'find':
           data = ctx.result;
           break;
+        case 'findById':
+          data = ctx.result;
+          break;
         default:
           log.debug(ctx, `afterRemote: Unhandled: ${ctx.methodString}`);
           data = {}
@@ -82,9 +85,9 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
 
     if(ctxInfo.isStatic) {
       switch(ctxInfo.methodName) {
-        case 'find':
-          data = {}
-          break;
+        // case 'find':
+        //   data = {}
+        //   break;
         case 'create':
           data = ctx.req.body;
           break;
