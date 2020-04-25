@@ -159,7 +159,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it.only('t1 should replace field names in response when fieldReplace personalization is configured', function (done) {
+  it('t1 should replace field names in response when fieldReplace personalization is configured', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
@@ -211,7 +211,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     'id': 2
   };
 
-  it.only('t2 create records in product owners', function (done) {
+  it('t2 create records in product owners', function (done) {
     ProductOwner = loopback.findModel('ProductOwner');
     ProductOwner.create(owner1, function (err) {
       if (err) {
@@ -223,7 +223,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it.only('t3 should replace field names in response when fieldReplace personalization is configured', function (done) {
+  it('t3 should replace field names in response when fieldReplace personalization is configured', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
@@ -261,7 +261,7 @@ describe(chalk.blue('service personalization test started...'), function () {
   });
 
   // sort test cases
-  it.only('t4 single sort condition:  should return the sorted result when sort personalization rule is configured.', function (done) {
+  it('t4 single sort condition:  should return the sorted result when sort personalization rule is configured.', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
@@ -295,7 +295,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it.only('t5 single sort condition: should sort in ascending order when the sort order is not specified', function (done) {
+  it('t5 single sort condition: should sort in ascending order when the sort order is not specified', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
@@ -333,7 +333,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it.only('t6 single sort condition: should accept the keywords like asc,ascending,desc or descending as sort order', function (done) {
+  it('t6 single sort condition: should accept the keywords like asc,ascending,desc or descending as sort order', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
@@ -368,7 +368,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it.only('t7 smultiple sort condition: should return sorted result when personalization rule with multiple sort is configured', function (done) {
+  it('t7 smultiple sort condition: should return sorted result when personalization rule with multiple sort is configured', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
@@ -406,7 +406,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it.only('t8 multiple sort condition: should omit the sort expression whose order value(ASC|DSC) doesnt match the different cases', function (done) {
+  it('t8 multiple sort condition: should omit the sort expression whose order value(ASC|DSC) doesnt match the different cases', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
@@ -487,7 +487,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it.only('t10 multiple sort: should handle duplicate sort expressions', function (done) {
+  it('t10 multiple sort: should handle duplicate sort expressions', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
@@ -522,7 +522,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it.only('t11 multiple sort: should handle clashing sort expressions.(Eg:name ASC in personalization rule and name DESC from API, in this case consider name DESC from API)',
+  it('t11 multiple sort: should handle clashing sort expressions.(Eg:name ASC in personalization rule and name DESC from API, in this case consider name DESC from API)',
     function (done) {
       // Setup personalization rule
       var ruleForAndroid = {
@@ -599,7 +599,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it.only('t13 Mask:should mask the given fields and not send them to the response', function (done) {
+  it('t13 Mask:should mask the given fields and not send them to the response', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
       'modelName': 'ProductCatalog',
@@ -721,7 +721,8 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  it('t16 should replace field value names while posting when fieldValueReplace personalization is configured',
+  // TODO: (Arun - 2020-04-24 22:34:58) Is it meant to demonstrate reverse field value replace?
+  xit('t16 should replace field value names while posting when fieldValueReplace personalization is configured',
     function (done) {
       // Setup personalization rule
       var ruleForAndroid = {
@@ -1057,6 +1058,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
+  //TODO: (Arun 2020-04-24 22:40:29) - lbFilter should it be there in the first place?
   it('t21 should give filterd result when lbFilter is applied', function (done) {
     // Setup personalization rule
     var ruleForAndroid = {
@@ -1437,6 +1439,9 @@ describe(chalk.blue('service personalization test started...'), function () {
           state: {
             type: 'string'
           }
+        },
+        mixins: {
+          ServicePersonalizationMixin: true
         }
       };
 
@@ -1452,6 +1457,9 @@ describe(chalk.blue('service personalization test started...'), function () {
             model: 'Address',
             property: 'billingAddress'
           }
+        },
+        mixins: {
+          ServicePersonalizationMixin: true
         }
       };
 
