@@ -722,7 +722,7 @@ describe(chalk.blue('service personalization test started...'), function () {
   });
 
   // TODO: (Arun - 2020-04-24 22:34:58) Is it meant to demonstrate reverse field value replace?
-  xit('t16 should replace field value names while posting when fieldValueReplace personalization is configured',
+  it('t16 should replace field value names while posting when fieldValueReplace personalization is configured',
     function (done) {
       // Setup personalization rule
       var ruleForAndroid = {

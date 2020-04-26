@@ -21,7 +21,5 @@ var servicePersonalizer = require('../../lib/service-personalizer');
 
 module.exports = function ServicePersonalization(app) {
   servicePersonalizer.init(app);
-  let servicePersoConfig = app.get('servicePersonalization');
-  servicePersonalizer.loadCustomFunction(require(servicePersoConfig.customFunctionPath));
 };
 
