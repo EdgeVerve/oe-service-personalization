@@ -28,5 +28,8 @@
   "relations": {},
   "acls": [],
   "methods": {},
-  "strict": true
+  "strict": true,
+  "mixins": {
+    "ServicePersonalizationMixin" : true
+  }
 }

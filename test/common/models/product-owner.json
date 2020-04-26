@@ -19,5 +19,8 @@
     }    
   },
   "acls": [],
-  "methods": {}
+  "methods": {},
+  "mixins": {
+    "ServicePersonalizationMixin" : true
+  }
 }

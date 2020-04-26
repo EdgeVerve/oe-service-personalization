@@ -15,6 +15,7 @@
   {
     "path": "./",
     "enabled": true,
-    "serverDir" : "test"
+    "serverDir" : "test",
+    "autoEnableMixins": true
   }
 ]
