@@ -40,8 +40,20 @@
     "dataSource": "db",
     "public": true    
   },
-  "MyModel": {
+  "AddressBook" : {
     "dataSource" : "db",
-    "public" : true
+    "public": true
+  },
+  "PhoneNumber" : {
+    "dataSource" : "db",
+    "public": true
+  },
+  "Store" : {
+    "dataSource" : "db",
+    "public": true
+  },
+  "StoreStock" : {
+    "dataSource" : "db",
+    "public": true
   }
 }

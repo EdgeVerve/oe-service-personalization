@@ -1,0 +1,19 @@
+{
+  "name": "StoreStock",
+  "description": "Inventory of what is sold in the store",
+  "properties": {
+  },
+  "relations": {
+    "store":{
+      "type":"belongsTo",
+      "model": "Store"
+    },
+    "product": {
+      "type":"belongsTo",
+      "model":"ProductCatalog"
+    }
+  },
+  "mixins": {
+    "ServicePersonalizationMixin": true
+  }
+}

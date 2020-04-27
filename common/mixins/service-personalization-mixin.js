@@ -27,7 +27,7 @@ const { nextTick, parseMethodString, slice } = require('./../../lib/utils');
 
 module.exports = function ServicePersonalizationMixin(TargetModel) {
   log.debug(log.defaultContext(), `Applying service personalization for ${TargetModel.definition.name}`);
-  TargetModel.afterRemote('**', function () {
+  TargetModel.afterRemote('**', function ServicePersonalizationAfterRemoteHook() {
 
     let args = slice(arguments);
     let ctx = args[0];
@@ -38,28 +38,44 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
     ctxInfo = parseMethodString(ctx.methodString);
     
     let data = null;
+    let applyFlag = true;
+
     if (ctxInfo.isStatic) {
       switch (ctxInfo.methodName) {
         case 'create':
+        case 'patchOrCreate':
           data = ctx.result;
           break;
         case 'find':
-          data = ctx.result;
-          break;
         case 'findById':
+        case 'findOne':
           data = ctx.result;
           break;
         default:
-          log.debug(ctx, `afterRemote: Unhandled: ${ctx.methodString}`);
+          log.debug(ctx, `afterRemote: Unhandled static - ${ctx.methodString}`);
           data = {}
+          applyFlag = false;
       }
+    }
+    else {
+      switch(ctxInfo.methodName) {
+        case 'patchAttributes':
+          data = ctx.result;
+          break;
+        default:
+          log.debug(ctx, `afterRemote: Unhandled non-static - ${ctx.methodString}`);
+          data = {}
+          applyFlag = false;
+      }
+    }
 
+    if(applyFlag) {
       let personalizationOptions = {
         isBeforeRemote: false,
         context: ctx
       };
 
-      return applyServicePersonalization(ctxInfo.modelName, data, personalizationOptions, function(err) {
+      applyServicePersonalization(ctxInfo.modelName, data, personalizationOptions, function(err) {
         if(err) {
           next(err);
         }
@@ -68,12 +84,13 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
         }
       });
     }
-
-    log.debug(ctx, `afterRemote: Unhandled non-static: ${ctx.methodString}`);
-    nextTick(next);
+    else {
+      nextTick(next);
+    }
+    
   });
 
-  TargetModel.beforeRemote('**', function() {
+  TargetModel.beforeRemote('**', function ServicePersonalizationBeforeRemoteHook() {
     let args = slice(arguments);
     let ctx = args[0];
     let next = args[args.length - 1];
@@ -82,31 +99,49 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
     log.debug(ctx, `beforeRemote: MethodString: ${ctx.methodString}`);
 
     ctxInfo = parseMethodString(ctx.methodString);
-
+    let applyFlag = true;
     if(ctxInfo.isStatic) {
       switch(ctxInfo.methodName) {
-        // case 'find':
-        //   data = {}
-        //   break;
         case 'create':
+        case 'patchOrCreate':
+          data = ctx.req.body;
+          break;
+        case 'find':
+        case 'findById':
+        case 'findOne':
+          data = {};
+          break;
+        default:
+          data = {}
+          log.debug(ctx, `beforeRemote: Unhandled static: ${ctx.methodString}`);          
+          applyFlag = false;
+      }      
+    }
+    else {
+      switch(ctxInfo.methodName) {
+        case 'patchAttributes':
           data = ctx.req.body;
           break;
         default:
           data = {}
-          log.debug(ctx, `beforeRemote: Unhandled ${ctx.methodString}`);
+          log.debug(ctx, `beforeRemote: Unhandled non-static: ${ctx.methodString}`);          
+          applyFlag = false;
       }
-
+    }
+    
+    if(applyFlag) {
       let personalizationOptions = {
         isBeforeRemote: true,
         context: ctx
       };
 
-      return applyServicePersonalization(ctxInfo.modelName, data, personalizationOptions, function(err){
+      applyServicePersonalization(ctxInfo.modelName, data, personalizationOptions, function(err){
         next(err);
       });
     }
+    else {
+      nextTick(next);
+    }
     
-    log.debug(ctx, `beforeRemote: Unhandled non-static ${ctx.methodString}`);
-    nextTick(next);
   });
 }
