@@ -31,7 +31,7 @@ The following entity structure and relationships assumed for most of the tests.
 |    AddressBook    |      |       PhoneNumber      |       |     ProductCatalog     |
 |                   |      |                        |       |                        |
 +-------------------+      +------------------------+       +------------------------+
-| line1    : string |      | number    : number (*) |       | name        : string   |
+| line1    : string |      | number    : string (PK)|       | name        : string   |
 | line2    : string |      | firstName : string     |       | category    : string   |
 | landmark : string |      | lastName  : string     |       | desc        : string   |
 | pincode  : string |      |                        |       | price       : object   |
@@ -41,33 +41,38 @@ The following entity structure and relationships assumed for most of the tests.
                                                             +------------------------+
 
 
-                      +-----------------+     +---------------+
-                      |                 |     |               |
-                      |  ProductOwner   |     |     Store     |
-                      |                 |     |               |
-                      +-----------------+     +---------------+
-                      |  name : string  |     | name : string |
-                      |  city : string  |     |               |
-                      +-----------------+     +---------------+
++-----------------+     +---------------+        +--------------------------------+
+|                 |     |               |        |                                |
+|  ProductOwner   |     |     Store     |        |           StoreStock           |
+|                 |     |               |        |                                |
++-----------------+     +---------------+        +--------------------------------+
+|  name : string  |     | name : string |        | storeId          : string (FK) |
+|  city : string  |     |               |        | productCatalogId : string (FK) |
++-----------------+     +---------------+        +--------------------------------+
 
-=========================================================================================
 
-                 +--------------+
-        +--------+ ProductOwner +----------+
-        |        +--------------+          |
-     (hasMany)                         (hasOne)
-        |                                  |
-        v                                  v
-+-------+--------+                    +----+----+                     +-------------+
-| ProductCatalog |                    | Address +------(hasMany)----> | PhoneNumber |
-+-------+--------+                    +----+----+                     +-------------+
-        ^                                  ^
-        |                                  |
-    (hasMany)                              |
-        |                              (hasMany)
-        |          +-------+               |
-        +--------->+ Store +---------------+
-                   +-------+
+==========================================================================================================================
+
+                                        +--------------+
+                               +--------+ ProductOwner +----------+
+                               +        +--------------+          +
+                     (hasMany-ProductCatalog)             (hasOne-address)
+                               +                                  +
+                               v                                  v
+                       +-------+--------+                    +----+----+                            +-------------+
+         +------------>+ ProductCatalog |                    | Address +-----+(hasMany-phones)+---> | PhoneNumber |
+         |             +----------------+                    +----+----+                            +-------------+
+         |                                                        ^
+         |                                                        |
+(belongsTo-product)                                               +
+         |                                                 (hasMany-addresses)
+         |                                +-------+               +
+         |         +-+(belongsTo-store)+->+ Store +---------------+
+         |         |                      +-------+
+         |         |
+   +-----+------+  |
+   | StoreStock +--+
+   +------------+
 
 ```
 
