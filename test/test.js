@@ -1779,7 +1779,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  describe.only('Relation tests', function () {
+  describe('Relation tests', function () {
 
     before('creating the product owner', done => {
       let data = {
@@ -1907,8 +1907,8 @@ describe(chalk.blue('service personalization test started...'), function () {
         },
         {
           "number": "2342222399",
-          "firstName": "Davy",
-          "lastName": "Jones",
+          "firstName": "Jack",
+          "lastName": "Sparrow",
           "addressBookId": "addr2"
         },
         {
@@ -1916,7 +1916,13 @@ describe(chalk.blue('service personalization test started...'), function () {
           "firstName": "Martha",
           "lastName": "James",
           "addressBookId": "addr3"
-        }
+        },
+        {
+          "number": "2340022399",
+          "firstName": "Antonio",
+          "lastName": "Bandaras",
+          "addressBookId": "addr4"
+        },
       ];
 
       let PhoneNumber = loopback.findModel('PhoneNumber');
@@ -1925,33 +1931,36 @@ describe(chalk.blue('service personalization test started...'), function () {
       });
     });
 
-    before('creating personalization rule', done => {
-      let data = [
-        {
-          "modelName" : "AddressBook",
-          "personalizationRule": {
-            "mask": {
-              "landmark": true
-            }
-          }
-        },
-        {
-          "modelName": "PhoneNumber",
-          "personalizationRule": {
-            "fieldMask": {
-              "number" : {
-                "pattern": "([0-9]{3})([0-9]{3})([0-9]{4})",
-                "maskCharacter": "X",
-                "format": "($1) $2-$3",
-                "mask": ["$1", "$2"]
-              }
-            }
-          }
-        }
-      ];
+    // before('creating personalization rule', done => {
+    //   let data = [
+    //     {
+    //       "modelName" : "AddressBook",
+    //       "personalizationRule": {
+    //         "mask": {
+    //           "landmark": true
+    //         }
+    //       }
+    //     },
+    //     {
+    //       "modelName": "PhoneNumber",
+    //       "personalizationRule": {
+    //         "fieldMask": {
+    //           "number" : {
+    //             "pattern": "([0-9]{3})([0-9]{3})([0-9]{4})",
+    //             "maskCharacter": "X",
+    //             "format": "($1) $2-$3",
+    //             "mask": ["$1", "$2"]
+    //           }
+    //         }
+    //       }
+    //     }
+    //   ];
 
-      PersonalizationRule.create(data, err => done(err));
-    });
+    //   PersonalizationRule.create(data, {}, function(err, res){
+    //     console.log(res);
+    //     done(err)
+    //   });
+    // });
 
     it('t39 should apply child model personalization when included from parent with no personalization', done => {
       let data = {
@@ -1995,41 +2004,69 @@ describe(chalk.blue('service personalization test started...'), function () {
         });
     });
 
-    it.only('t40 should demonstrate personalization is being applied recursively', done => {
-      let filter = {
-        "include": [ 
-          {
-            "ProductCatalog" : {
-              "store": {
-                "store" : { 
-                  "addresses" : "phones"  
+    it('t40 should demonstrate personalization is being applied recursively', done => {
+      let data = [
+        {
+          "modelName" : "AddressBook",
+          "personalizationRule": {
+            "mask": {
+              "landmark": true
+            }
+          }
+        },
+        {
+          "modelName": "PhoneNumber",
+          "personalizationRule": {
+            "fieldMask": {
+              "number" : {
+                "pattern": "([0-9]{3})([0-9]{3})([0-9]{4})",
+                "maskCharacter": "X",
+                "format": "($1) $2-$3",
+                "mask": ["$1", "$2"]
+              }
+            }
+          }
+        }
+      ];
+
+      PersonalizationRule.create(data, {}, function(err){
+        if(err) {
+          return done(err)
+        }
+        let filter = {
+          "include": [ 
+            {
+              "ProductCatalog" : {
+                "store": {
+                  "store" : { 
+                    "addresses" : "phones"  
+                  } 
                 } 
               } 
-            } 
-          }, 
-          "address" 
-        ],
-        "where": { "id": 12 } 
-      };
-      let filterString = encodeURIComponent(JSON.stringify(filter));
-      let url = `${productOwnerUrl}/findOne?access_token=${accessToken}&&filter=${filterString}`;
-      api.get(url)
-        .set('Accept', 'application/json')
-        .set('REMOTE_USER', 'testUser')
-        .expect(200)
-        .end((err, resp) => {
-          if(err){
-            done(err)
-          }
-          else {
-            let result = resp.body;
-            expect(result.ProductCatalog).to.be.array;
-            expect(result.address).to.be.object;
-            console.log(JSON.stringify(result,null, 2));
-            done();
-          }
-        });
-
+            }, 
+            "address" 
+          ],
+          "where": { "id": 12 } 
+        };
+        let filterString = encodeURIComponent(JSON.stringify(filter));
+        let url = `${productOwnerUrl}/findOne?access_token=${accessToken}&&filter=${filterString}`;
+        api.get(url)
+          .set('Accept', 'application/json')
+          .set('REMOTE_USER', 'testUser')
+          .expect(200)
+          .end((err, resp) => {
+            if(err){
+              done(err)
+            }
+            else {
+              let result = resp.body;
+              expect(result.ProductCatalog).to.be.array;
+              expect(result.address).to.be.object;
+              console.log(JSON.stringify(result,null, 2));
+              done();
+            }
+          });
+      });
     });
   });
 });
