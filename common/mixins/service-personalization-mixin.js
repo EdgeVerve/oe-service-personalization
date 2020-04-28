@@ -9,13 +9,13 @@
  * This mixin will attach beforeRemote and afterRemote
  * hooks and decide if the data needs to be service
  * personalized.
- * 
+ *
  * Therefore, it is necessary to enable the mixin
  * configuration on the corresponding model definition,
- * even if it does not directly participate in the 
+ * even if it does not directly participate in the
  * service personalization (viz is the case with any
  * form of relations - or related models).
- * 
+ *
  * This will only personalize data for the remote endpoints.
  */
 
@@ -28,15 +28,14 @@ const { nextTick, parseMethodString, slice } = require('./../../lib/utils');
 module.exports = function ServicePersonalizationMixin(TargetModel) {
   log.debug(log.defaultContext(), `Applying service personalization for ${TargetModel.definition.name}`);
   TargetModel.afterRemote('**', function ServicePersonalizationAfterRemoteHook() {
-
     let args = slice(arguments);
     let ctx = args[0];
     let next = args[args.length - 1];
     // let callCtx = ctx.req.callContext;
     log.debug(ctx, `afterRemote: MethodString: ${ctx.methodString}`);
 
-    ctxInfo = parseMethodString(ctx.methodString);
-    
+    let ctxInfo = parseMethodString(ctx.methodString);
+
     let data = null;
     let applyFlag = true;
 
@@ -53,41 +52,37 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
           break;
         default:
           log.debug(ctx, `afterRemote: Unhandled static - ${ctx.methodString}`);
-          data = {}
+          data = {};
           applyFlag = false;
       }
-    }
-    else {
-      switch(ctxInfo.methodName) {
+    } else {
+      switch (ctxInfo.methodName) {
         case 'patchAttributes':
           data = ctx.result;
           break;
         default:
           log.debug(ctx, `afterRemote: Unhandled non-static - ${ctx.methodString}`);
-          data = {}
+          data = {};
           applyFlag = false;
       }
     }
 
-    if(applyFlag) {
+    if (applyFlag) {
       let personalizationOptions = {
         isBeforeRemote: false,
         context: ctx
       };
 
-      applyServicePersonalization(ctxInfo.modelName, data, personalizationOptions, function(err) {
-        if(err) {
+      applyServicePersonalization(ctxInfo.modelName, data, personalizationOptions, function (err) {
+        if (err) {
           next(err);
-        }
-        else {
+        } else {
           next();
         }
       });
-    }
-    else {
+    } else {
       nextTick(next);
     }
-    
   });
 
   TargetModel.beforeRemote('**', function ServicePersonalizationBeforeRemoteHook() {
@@ -98,10 +93,11 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
 
     log.debug(ctx, `beforeRemote: MethodString: ${ctx.methodString}`);
 
-    ctxInfo = parseMethodString(ctx.methodString);
+    let ctxInfo = parseMethodString(ctx.methodString);
     let applyFlag = true;
-    if(ctxInfo.isStatic) {
-      switch(ctxInfo.methodName) {
+    let data = null;
+    if (ctxInfo.isStatic) {
+      switch (ctxInfo.methodName) {
         case 'create':
         case 'patchOrCreate':
           data = ctx.req.body;
@@ -112,36 +108,33 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
           data = {};
           break;
         default:
-          data = {}
-          log.debug(ctx, `beforeRemote: Unhandled static: ${ctx.methodString}`);          
+          data = {};
+          log.debug(ctx, `beforeRemote: Unhandled static: ${ctx.methodString}`);
           applyFlag = false;
-      }      
-    }
-    else {
-      switch(ctxInfo.methodName) {
+      }
+    } else {
+      switch (ctxInfo.methodName) {
         case 'patchAttributes':
           data = ctx.req.body;
           break;
         default:
-          data = {}
-          log.debug(ctx, `beforeRemote: Unhandled non-static: ${ctx.methodString}`);          
+          data = {};
+          log.debug(ctx, `beforeRemote: Unhandled non-static: ${ctx.methodString}`);
           applyFlag = false;
       }
     }
-    
-    if(applyFlag) {
+
+    if (applyFlag) {
       let personalizationOptions = {
         isBeforeRemote: true,
         context: ctx
       };
 
-      applyServicePersonalization(ctxInfo.modelName, data, personalizationOptions, function(err){
+      applyServicePersonalization(ctxInfo.modelName, data, personalizationOptions, function (err) {
         next(err);
       });
-    }
-    else {
+    } else {
       nextTick(next);
     }
-    
   });
-}
+};
