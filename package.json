@@ -1,6 +1,6 @@
 {
   "name": "oe-service-personalization",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "oe-cloud modularization project",
   "engines": {
     "node": ">=6"
