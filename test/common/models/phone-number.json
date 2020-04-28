@@ -1,0 +1,14 @@
+{
+  "name": "PhoneNumber",
+  "properties": {
+    "number": {
+      "type": "string",
+      "id": true
+    },
+    "firstName": "string",
+    "lastName": "string"
+  },
+  "mixins": {
+    "ServicePersonalizationMixin": true
+  }
+}

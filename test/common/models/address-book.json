@@ -1,0 +1,19 @@
+{
+  "name":"AddressBook",
+  "base":"BaseEntity",
+  "properties": {
+    "line1": "string",
+    "line2": "string",
+    "landmark": "string",
+    "pincode":"string"
+  },
+  "relations": {
+    "phones" : {
+      "type": "hasMany",
+      "model":"PhoneNumber"
+    }
+  },
+  "mixins": {
+    "ServicePersonalizationMixin": true
+  }
+}

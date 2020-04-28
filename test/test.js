@@ -14,6 +14,7 @@ var chalk = require('chalk');
 var chai = require('chai');
 chai.use(require('chai-things'));
 var expect = chai.expect;
+var _ = require('lodash');
 
 var ProductCatalog;
 var ProductOwner;
@@ -31,6 +32,7 @@ describe(chalk.blue('service personalization test started...'), function () {
   var accessToken;
   before('wait for boot scripts to complete', function (done) {
     app.on('test-start', function () {
+      console.log('booted');
       ProductCatalog = loopback.findModel('ProductCatalog');
       ProductCatalog.destroyAll(function (err, info) {
         return done(err);
@@ -1421,7 +1423,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
-  describe('Relation Tests - ', function () {
+  describe('DOT Tests - ', function () {
     var AddressModel, CustomerModel;
     var defContext = {};
     before('setup test data', done => {
@@ -1721,6 +1723,386 @@ describe(chalk.blue('service personalization test started...'), function () {
             }
           });
       });
+    });
+  });
+
+  describe('Updation scenarios', function () {
+    it('t37 should apply personalization during an upsert for the same scope', function (done) {
+      let putData = {
+        id: 'watch3',
+        name: 'MultiTrix - MODEL 1100',
+        modelNo: '7983211100'
+      };
+
+      api.put(productCatalogUrl + '?access_token=' + accessToken)
+        .set('Accept', 'application/json')
+        .set('REMOTE_USER', 'testUser')
+        .set('region', 'kl')
+        .send(putData)
+        .expect(200)
+        .end(function (err, resp) {
+          if (err) {
+            done(err)
+          }
+          else {
+            var result = resp.body;
+            expect(result.id).to.equal(putData.id);
+            expect(result.name).to.equal(putData.name);
+            expect(result.modelNo).to.equal('798321XXXX');
+            done();
+          }
+        })
+    });
+
+    it('t38 should apply personalization to a single record that is being updated', function (done) {
+      let putData = {
+        modelNo: '1234560000'
+      };
+
+      let apiUrl = productCatalogUrl + '/watch3' + `?access_token=${accessToken}`;
+      api.put(apiUrl)
+        .set('Accept', 'application/json')
+        .set('REMOTE_USER', 'testUser')
+        .set('region', 'kl')
+        .send(putData)
+        .expect(200)
+        .end(function (err, resp) {
+          if (err) {
+            done(err)
+          }
+          else {
+            let result = resp.body;
+            expect(result.id).to.equal('watch3');
+            expect(result.modelNo).to.equal('123456XXXX');
+            done();
+          }
+        })
+    });
+  });
+
+  var httpResult;
+
+  describe('Relation tests', function () {
+
+    before('creating the product owner', done => {
+      let data = {
+        "name": "Swamy Patanjali",
+        "city": "Lucknow",
+        "id": 12
+      };
+      ProductOwner = loopback.findModel('ProductOwner');
+      ProductOwner.create(data, function(err){
+        done(err);
+      });
+    });
+
+    before('creating a catalog', done => {
+      let data = [
+        {
+          "name" : "Patanjali Paste",
+          "category": "FMCG",
+          "desc": "Herbal paste that is all vegan",
+          "price": {"currency":"INR", "amount": 45 },
+          "isAvailable": false,
+          "keywords": [ "toothpaste", "herbal" ],
+          "productOwnerId" : 12,
+          "id": "prod1"
+        },
+        {
+          "name" : "Patanjali Facial",
+          "category": "Cosmetics",
+          "desc": "Ayurvedic cream to get rid of dark spots, pimples, etc",
+          "price": {"currency":"INR", "amount": 70 },
+          "isAvailable": true,
+          "keywords": [ "face", "herbal", "cream" ],
+          "productOwnerId" : 12,
+          "id" : "prod2"
+        }
+      ];
+
+      ProductCatalog.create(data, function(err){
+        done(err);
+      });
+    });
+
+    before('creating stores', done => {
+      let data = [
+        {
+          "name": "Patanjali Store 1",
+          "id": "store2"
+        },
+        {
+          "name": "Patanjali Store 2",
+          "id": "store1"
+        }
+      ];
+      let Store = loopback.findModel('Store');
+      Store.create(data, function(err) {
+        done(err);
+      });
+    });
+
+    before('creating store stock', done => {
+      let data = [
+        {"storeId": "store1", "productCatalogId": "prod1" },
+        {"storeId": "store2", "productCatalogId": "prod2" }
+      ];
+      let StoreStock = loopback.findModel('StoreStock');
+      StoreStock.create(data, function(err) {
+        done(err);
+      });
+    });
+
+    before('create addresses', done => {
+      let data = [
+        {
+          "line1": "5th ave",
+          "line2": "Richmond",
+          "landmark":"Siegel Building",
+          "pincode": "434532",
+          "id": "addr1",
+          "storeId":"store1"
+        },
+        {
+          "line1": "7th ave",
+          "line2": "Wellington Broadway",
+          "landmark":"Carl Sagan's Office",
+          "pincode": "434543",
+          "id": "addr2",
+          "storeId":"store1"
+        },
+        {
+          "line1": "Patanjali Lane",
+          "line2": "Patanjali Rd",
+          "landmark": "Near locality water tank",
+          "pincode": "473032",
+          "id": "addr3",
+          "productOwnerId": 12
+        },
+        {
+          "line1": "Orchard St",
+          "line2": "Blumingdale's",
+          "landmark":"Post Office",
+          "pincode": "673627",
+          "id": "addr4",
+          "storeId":"store2"
+        }
+      ];
+      let AddressBook = loopback.findModel('AddressBook');
+      AddressBook.create(data, function(err){
+        done(err);
+      });
+    });
+
+    before('creating phone numbers', done => {
+      let data = [
+        {
+          "number": "2342229898",
+          "firstName": "Ethan",
+          "lastName": "Hunt",
+          "addressBookId": "addr1"
+        },
+        {
+          "number": "2342229899",
+          "firstName": "Davy",
+          "lastName": "Jones",
+          "addressBookId": "addr1"
+        },
+        {
+          "number": "2342222399",
+          "firstName": "Jack",
+          "lastName": "Sparrow",
+          "addressBookId": "addr2"
+        },
+        {
+          "number": "8037894565",
+          "firstName": "Martha",
+          "lastName": "James",
+          "addressBookId": "addr3"
+        },
+        {
+          "number": "2340022399",
+          "firstName": "Antonio",
+          "lastName": "Bandaras",
+          "addressBookId": "addr4"
+        },
+      ];
+
+      let PhoneNumber = loopback.findModel('PhoneNumber');
+      PhoneNumber.create(data, function(err){ 
+        done(err);
+      });
+    });
+
+    
+
+    it('t39 should apply child model personalization when included from parent with no personalization', done => {
+      let data = {
+        productOwnerId: 1
+      };
+
+      let url = `${productCatalogUrl}/watch3?access_token=${accessToken}`;
+      api.put(url)
+        .set('Accept', 'application/json')
+        .set('REMOTE_USER', 'testUser')
+        .set('region', 'kl')
+        .send(data)
+        .expect(200)
+        .end((err, resp) => {
+          if (err) {
+            done(err)
+          }
+          else {
+            let filter = { include: ["ProductCatalog"] };
+            let escapedFilter = encodeURIComponent(JSON.stringify(filter));
+            let url2 = `${productOwnerUrl}/1?filter=${escapedFilter}&access_token=${accessToken}`;
+            let res = resp.body;
+            expect(res.modelNo).to.include("XXXX");
+            api.get(url2)
+              .set('Accept', 'application/json')
+              .set('REMOTE_USER', 'testUser')
+              .set('region', 'kl')
+              .expect(200).end((err, resp) => {
+                if(err) {
+                  done(err);
+                }
+                else {
+                  let result = resp.body;
+                  expect(result.ProductCatalog).to.be.array;
+                  let watch3item = result.ProductCatalog.find(item => item.id === 'watch3');
+                  expect(watch3item.modelNo).to.equal('123456XXXX');
+                  done();
+                }
+              });
+          }
+        });
+    });
+    
+    it('t40 should demonstrate personalization is being applied recursively', done => {
+      let data = [
+        {
+          "modelName" : "AddressBook",
+          "personalizationRule": {
+            "mask": {
+              "landmark": true
+            }
+          }
+        },
+        {
+          "modelName": "PhoneNumber",
+          "personalizationRule": {
+            "fieldMask": {
+              "number" : {
+                "pattern": "([0-9]{3})([0-9]{3})([0-9]{4})",
+                "maskCharacter": "X",
+                "format": "($1) $2-$3",
+                "mask": ["$1", "$2"]
+              }
+            }
+          }
+        }
+      ];
+
+      PersonalizationRule.create(data, {}, function(err){
+        if(err) {
+          return done(err)
+        }
+        let filter = {
+          "include": [ 
+            {
+              "ProductCatalog" : {
+                "store": {
+                  "store" : { 
+                    "addresses" : "phones"  
+                  } 
+                } 
+              } 
+            }, 
+            "address" 
+          ],
+          "where": { "id": 12 } 
+        };
+        let filterString = encodeURIComponent(JSON.stringify(filter));
+        let url = `${productOwnerUrl}/findOne?access_token=${accessToken}&&filter=${filterString}`;
+        api.get(url)
+          .set('Accept', 'application/json')
+          .set('REMOTE_USER', 'testUser')
+          .expect(200)
+          .end((err, resp) => {
+            if(err){
+              done(err)
+            }
+            else {
+              let result = resp.body;
+              httpResult = result;
+              expect(result.ProductCatalog).to.be.array;
+              expect(result.address).to.be.object;
+              // console.log(JSON.stringify(result,null, 2));
+              _.flatten(
+                _.flatten(result.ProductCatalog.map(item => item.store.store.addresses))
+                .map(x => x.phones)
+              ).forEach(ph => {
+                let substr = ph.number.substr(0, 10);
+                expect(substr).to.equal('(XXX) XXX-');
+              });
+              
+                
+              done();
+            }
+          });
+      });
+    });    
+  });
+
+  describe('Remote method tests', () => {
+    before('re-inserting the personalization rules', done => {
+      let data = [
+        {
+          "modelName" : "AddressBook",
+          "personalizationRule": {
+            "mask": {
+              "landmark": true
+            }
+          }
+        },
+        {
+          "modelName": "PhoneNumber",
+          "personalizationRule": {
+            "fieldMask": {
+              "number" : {
+                "pattern": "([0-9]{3})([0-9]{3})([0-9]{4})",
+                "maskCharacter": "X",
+                "format": "($1) $2-$3",
+                "mask": ["$1", "$2"]
+              }
+            }
+          }
+        }
+      ];
+
+      PersonalizationRule.create(data, {}, function(err){
+        done(err);
+      });
+    });
+
+    it('t41 should demonstrate data getting personalized via a remote method', done => {
+      
+      let ownerId = 12;
+      let url = `${productOwnerUrl}/${ownerId}/demandchain?access_token=${accessToken}`;
+      api.get(url)
+        .set('Accept', 'application/json')
+        .set('REMOTE_USER', 'testUser')
+        .expect(200)
+        .end((err, resp) => {
+          if(err) {
+            done(err);
+          }
+          else {
+            let result = resp.body;
+            expect(result).to.deep.equal(httpResult);
+            done();
+          }
+        })
     });
   });
 });
