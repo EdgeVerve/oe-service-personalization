@@ -14,6 +14,7 @@ var chalk = require('chalk');
 var chai = require('chai');
 chai.use(require('chai-things'));
 var expect = chai.expect;
+var _ = require('lodash');
 
 var ProductCatalog;
 var ProductOwner;
@@ -1779,6 +1780,8 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
+  var httpResult;
+
   describe('Relation tests', function () {
 
     before('creating the product owner', done => {
@@ -1931,36 +1934,7 @@ describe(chalk.blue('service personalization test started...'), function () {
       });
     });
 
-    // before('creating personalization rule', done => {
-    //   let data = [
-    //     {
-    //       "modelName" : "AddressBook",
-    //       "personalizationRule": {
-    //         "mask": {
-    //           "landmark": true
-    //         }
-    //       }
-    //     },
-    //     {
-    //       "modelName": "PhoneNumber",
-    //       "personalizationRule": {
-    //         "fieldMask": {
-    //           "number" : {
-    //             "pattern": "([0-9]{3})([0-9]{3})([0-9]{4})",
-    //             "maskCharacter": "X",
-    //             "format": "($1) $2-$3",
-    //             "mask": ["$1", "$2"]
-    //           }
-    //         }
-    //       }
-    //     }
-    //   ];
-
-    //   PersonalizationRule.create(data, {}, function(err, res){
-    //     console.log(res);
-    //     done(err)
-    //   });
-    // });
+    
 
     it('t39 should apply child model personalization when included from parent with no personalization', done => {
       let data = {
@@ -2003,7 +1977,7 @@ describe(chalk.blue('service personalization test started...'), function () {
           }
         });
     });
-
+    
     it('t40 should demonstrate personalization is being applied recursively', done => {
       let data = [
         {
@@ -2060,13 +2034,75 @@ describe(chalk.blue('service personalization test started...'), function () {
             }
             else {
               let result = resp.body;
+              httpResult = result;
               expect(result.ProductCatalog).to.be.array;
               expect(result.address).to.be.object;
-              console.log(JSON.stringify(result,null, 2));
+              // console.log(JSON.stringify(result,null, 2));
+              _.flatten(
+                _.flatten(result.ProductCatalog.map(item => item.store.store.addresses))
+                .map(x => x.phones)
+              ).forEach(ph => {
+                let substr = ph.number.substr(0, 10);
+                expect(substr).to.equal('(XXX) XXX-');
+              });
+              
+                
               done();
             }
           });
       });
+    });    
+  });
+
+  describe('Remote method tests', () => {
+    before('re-inserting the personalization rules', done => {
+      let data = [
+        {
+          "modelName" : "AddressBook",
+          "personalizationRule": {
+            "mask": {
+              "landmark": true
+            }
+          }
+        },
+        {
+          "modelName": "PhoneNumber",
+          "personalizationRule": {
+            "fieldMask": {
+              "number" : {
+                "pattern": "([0-9]{3})([0-9]{3})([0-9]{4})",
+                "maskCharacter": "X",
+                "format": "($1) $2-$3",
+                "mask": ["$1", "$2"]
+              }
+            }
+          }
+        }
+      ];
+
+      PersonalizationRule.create(data, {}, function(err){
+        done(err);
+      });
+    });
+
+    it('t41 should demonstrate data getting personalized via a remote method', done => {
+      
+      let ownerId = 12;
+      let url = `${productOwnerUrl}/${ownerId}/demandchain?access_token=${accessToken}`;
+      api.get(url)
+        .set('Accept', 'application/json')
+        .set('REMOTE_USER', 'testUser')
+        .expect(200)
+        .end((err, resp) => {
+          if(err) {
+            done(err);
+          }
+          else {
+            let result = resp.body;
+            expect(result).to.deep.equal(httpResult);
+            done();
+          }
+        })
     });
   });
 });
