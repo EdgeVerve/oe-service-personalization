@@ -25,6 +25,11 @@ const log = logger('service-personalization-mixin');
 const { applyServicePersonalization } = require('./../../lib/service-personalizer');
 const { nextTick, parseMethodString, slice } = require('./../../lib/utils');
 
+const checkNonStaticMethod = ctxInfo => {
+  let { methodName } = ctxInfo;
+  return methodName.startsWith('__');
+};
+
 module.exports = function ServicePersonalizationMixin(TargetModel) {
   log.debug(log.defaultContext(), `Applying service personalization for ${TargetModel.definition.name}`);
   TargetModel.afterRemote('**', function ServicePersonalizationAfterRemoteHook() {
@@ -61,9 +66,15 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
           data = ctx.result;
           break;
         default:
-          log.debug(ctx, `afterRemote: Unhandled non-static - ${ctx.methodString}`);
-          data = {};
-          applyFlag = false;
+          // log.debug(ctx, `afterRemote: Unhandled non-static - ${ctx.methodString}`);
+          // data = {};
+          // applyFlag = false;
+          applyFlag = checkNonStaticMethod(ctxInfo);
+          
+          data = ctx.result;
+          if(!applyFlag){
+            log.debug(ctx, `afterRemote: Unhandled non-static: ${ctx.methodString}`);
+          };
       }
     }
 
@@ -118,9 +129,13 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
           data = ctx.req.body;
           break;
         default:
+          applyFlag = checkNonStaticMethod(ctxInfo);
+          
           data = {};
-          log.debug(ctx, `beforeRemote: Unhandled non-static: ${ctx.methodString}`);
-          applyFlag = false;
+          if(!applyFlag){
+            log.debug(ctx, `beforeRemote: Unhandled non-static: ${ctx.methodString}`);
+          };
+          // applyFlag = false;
       }
     }
 

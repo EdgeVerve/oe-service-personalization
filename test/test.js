@@ -2052,6 +2052,24 @@ describe(chalk.blue('service personalization test started...'), function () {
           });
       });
     });    
+
+    it('t40(b) should apply service personalization to a related model', function(done) {
+      let url = `${productOwnerUrl}/1/ProductCatalog?access_token=${accessToken}`;
+      api.get(url)
+      .set('Accept', 'application/json')
+      .set('REMOTE_USER', 'testUser')
+      .set('region', 'kl')
+      .expect(200)
+      .end((err, resp) => {
+        if(err){
+          return done(err);
+        }
+        let result = resp.body;
+        // console.log(resp.body);
+        expect(result[0].modelNo).to.equal('123456XXXX');
+        done();
+      })
+    });
   });
 
   describe('Remote method tests', () => {
