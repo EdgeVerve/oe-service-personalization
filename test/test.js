@@ -1978,7 +1978,7 @@ describe(chalk.blue('service personalization test started...'), function () {
         });
     });
     
-    it('t40 should demonstrate personalization is being applied recursively', done => {
+    it('t40(a) should demonstrate personalization is being applied recursively', done => {
       let data = [
         {
           "modelName" : "AddressBook",
@@ -2053,7 +2053,7 @@ describe(chalk.blue('service personalization test started...'), function () {
       });
     });    
 
-    it('t40(b) should apply service personalization to a related model', function(done) {
+    it('t40(b) should apply service personalization to a related model invoked via remote call', function(done) {
       let url = `${productOwnerUrl}/1/ProductCatalog?access_token=${accessToken}`;
       api.get(url)
       .set('Accept', 'application/json')
@@ -2068,7 +2068,7 @@ describe(chalk.blue('service personalization test started...'), function () {
         // console.log(resp.body);
         expect(result[0].modelNo).to.equal('123456XXXX');
         done();
-      })
+      });
     });
   });
 
