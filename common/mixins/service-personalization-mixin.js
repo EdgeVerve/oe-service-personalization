@@ -25,8 +25,21 @@ const log = logger('service-personalization-mixin');
 const { applyServicePersonalization } = require('./../../lib/service-personalizer');
 const { nextTick, parseMethodString, slice } = require('./../../lib/utils');
 
+const getRelationInfo = (parentModel, { methodName }) => {
+  const idx =  7; //__get__
+  const REL_GET_STR = '__get__';
+  if(methodName.substr(0,idx) === REL_GET_STR) {
+    let relName = methodName.substr(idx);
+    relationDef = parentModel.settings.relations[relName];
+    return { isRelation: true, model: relationDef.model };
+  }
+  
+  return { isRelation: false }
+};
+
 module.exports = function ServicePersonalizationMixin(TargetModel) {
   log.debug(log.defaultContext(), `Applying service personalization for ${TargetModel.definition.name}`);
+  const TARGET_MODEL_NAME = TargetModel.definition.name;
   TargetModel.afterRemote('**', function ServicePersonalizationAfterRemoteHook() {
     let args = slice(arguments);
     let ctx = args[0];
@@ -38,13 +51,11 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
 
     let data = null;
     let applyFlag = true;
-
+    let toModel = TARGET_MODEL_NAME;
     if (ctxInfo.isStatic) {
       switch (ctxInfo.methodName) {
         case 'create':
         case 'patchOrCreate':
-          data = ctx.result;
-          break;
         case 'find':
         case 'findById':
         case 'findOne':
@@ -61,9 +72,16 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
           data = ctx.result;
           break;
         default:
-          log.debug(ctx, `afterRemote: Unhandled non-static - ${ctx.methodString}`);
-          data = {};
-          applyFlag = false;
+          let relationInfo = getRelationInfo(TargetModel, ctxInfo);
+          if(relationInfo.isRelation) {
+            applyFlag = true;
+            toModel = relationInfo.model;
+            data = ctx.result;
+          }
+          else {
+            applyFlag = false;
+            log.debug(ctx, `afterRemote: Unhandled non-static - ${ctx.methodString}`);
+          }
       }
     }
 
@@ -73,7 +91,7 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
         context: ctx
       };
 
-      applyServicePersonalization(ctxInfo.modelName, data, personalizationOptions, function (err) {
+      applyServicePersonalization(toModel, data, personalizationOptions, function (err) {
         if (err) {
           next(err);
         } else {
@@ -89,13 +107,14 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
     let args = slice(arguments);
     let ctx = args[0];
     let next = args[args.length - 1];
-    // let callCtx = ctx.req.callContext;
 
     log.debug(ctx, `beforeRemote: MethodString: ${ctx.methodString}`);
 
     let ctxInfo = parseMethodString(ctx.methodString);
     let applyFlag = true;
     let data = null;
+    let toModel = TARGET_MODEL_NAME;
+
     if (ctxInfo.isStatic) {
       switch (ctxInfo.methodName) {
         case 'create':
@@ -118,9 +137,16 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
           data = ctx.req.body;
           break;
         default:
-          data = {};
-          log.debug(ctx, `beforeRemote: Unhandled non-static: ${ctx.methodString}`);
-          applyFlag = false;
+          let relationInfo = getRelationInfo(TargetModel, ctxInfo);
+          if(relationInfo.isRelation) {
+            applyFlag = true;
+            toModel = relationInfo.model;
+            data = {};
+          }
+          else {
+            applyFlag = false;
+            log.debug(ctx, `beforeRemote: Unhandled non-static - ${ctx.methodString}`);            
+          }
       }
     }
 
@@ -130,7 +156,7 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
         context: ctx
       };
 
-      applyServicePersonalization(ctxInfo.modelName, data, personalizationOptions, function (err) {
+      applyServicePersonalization(toModel, data, personalizationOptions, function (err) {
         next(err);
       });
     } else {
