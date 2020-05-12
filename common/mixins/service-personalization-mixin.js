@@ -23,7 +23,7 @@
 const logger = require('oe-logger');
 const log = logger('service-personalization-mixin');
 const { runPersonalizations } = require('./../../lib/service-personalizer');
-// const { nextTick, parseMethodString, slice } = require('./../../lib/utils');
+const { slice } = require('./../../lib/utils');
 
 module.exports = function ServicePersonalizationMixin(TargetModel) {
   log.debug(log.defaultContext(), `Applying service personalization for ${TargetModel.definition.name}`);
@@ -34,7 +34,7 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
     // let callCtx = ctx.req.callContext;
     log.debug(ctx, `afterRemote: (enter) MethodString: ${ctx.methodString}`);
     runPersonalizations(ctx, false, function(err){
-      log.debug(ctx, `afterRemote: (leave) MethodString: ${ctx.methodString}`);
+      log.debug(ctx, `afterRemote: (leave${err ? '- with error' : ''}) MethodString: ${ctx.methodString}`);
       next(err);
     });
     
@@ -49,7 +49,7 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
 
     // let ctxInfo = parseMethodString(ctx.methodString);
     runPersonalizations(ctx, true, function(err){
-      log.debug(ctx, `beforeRemote: (leave) MethodString: ${ctx.methodString}`);
+      log.debug(ctx, `beforeRemote: (leave${err ? '- with error' : ''}) MethodString: ${ctx.methodString}`);
       next(err);
     });
   });

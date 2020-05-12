@@ -48,17 +48,18 @@ module.exports = function(ProductOwner) {
       "where": { "id": ownerId } 
     };
     ProductOwner.findOne(filter, options, function(err, result) {
-      if(err) {
-        done(err)
-      }
-      else {
-        let persOpts = {
-          isBeforeRemote: false, context: options
-        };
-        applyServicePersonalization('ProductOwner', result, persOpts, function(err){
-          done(err, result);
-        });
-      }
+      // if(err) {
+      //   done(err)
+      // }
+      // else {
+      //   let persOpts = {
+      //     isBeforeRemote: false, context: options
+      //   };
+      //   applyServicePersonalization('ProductOwner', result, persOpts, function(err){
+      //     done(err, result);
+      //   });
+      // }
+      done(err, result);
     })
   };
 }

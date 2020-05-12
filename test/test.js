@@ -2096,7 +2096,7 @@ describe(chalk.blue('service personalization test started...'), function () {
             }
           }
         }
-      ];
+      ]
 
       PersonalizationRule.create(data, {}, function(err){
         done(err);
