@@ -22,85 +22,22 @@
 
 const logger = require('oe-logger');
 const log = logger('service-personalization-mixin');
-const { applyServicePersonalization } = require('./../../lib/service-personalizer');
-const { nextTick, parseMethodString, slice } = require('./../../lib/utils');
-
-const getRelationInfo = (parentModel, { methodName }) => {
-  const idx =  7; //__get__
-  const REL_GET_STR = '__get__';
-  if(methodName.substr(0,idx) === REL_GET_STR) {
-    let relName = methodName.substr(idx);
-    relationDef = parentModel.settings.relations[relName];
-    return { isRelation: true, model: relationDef.model };
-  }
-  
-  return { isRelation: false }
-};
+const { runPersonalizations } = require('./../../lib/service-personalizer');
+// const { nextTick, parseMethodString, slice } = require('./../../lib/utils');
 
 module.exports = function ServicePersonalizationMixin(TargetModel) {
   log.debug(log.defaultContext(), `Applying service personalization for ${TargetModel.definition.name}`);
-  const TARGET_MODEL_NAME = TargetModel.definition.name;
   TargetModel.afterRemote('**', function ServicePersonalizationAfterRemoteHook() {
     let args = slice(arguments);
     let ctx = args[0];
     let next = args[args.length - 1];
     // let callCtx = ctx.req.callContext;
-    log.debug(ctx, `afterRemote: MethodString: ${ctx.methodString}`);
-
-    let ctxInfo = parseMethodString(ctx.methodString);
-
-    let data = null;
-    let applyFlag = true;
-    let toModel = TARGET_MODEL_NAME;
-    if (ctxInfo.isStatic) {
-      switch (ctxInfo.methodName) {
-        case 'create':
-        case 'patchOrCreate':
-        case 'find':
-        case 'findById':
-        case 'findOne':
-          data = ctx.result;
-          break;
-        default:
-          log.debug(ctx, `afterRemote: Unhandled static - ${ctx.methodString}`);
-          data = {};
-          applyFlag = false;
-      }
-    } else {
-      switch (ctxInfo.methodName) {
-        case 'patchAttributes':
-          data = ctx.result;
-          break;
-        default:
-          let relationInfo = getRelationInfo(TargetModel, ctxInfo);
-          if(relationInfo.isRelation) {
-            applyFlag = true;
-            toModel = relationInfo.model;
-            data = ctx.result;
-          }
-          else {
-            applyFlag = false;
-            log.debug(ctx, `afterRemote: Unhandled non-static - ${ctx.methodString}`);
-          }
-      }
-    }
-
-    if (applyFlag) {
-      let personalizationOptions = {
-        isBeforeRemote: false,
-        context: ctx
-      };
-
-      applyServicePersonalization(toModel, data, personalizationOptions, function (err) {
-        if (err) {
-          next(err);
-        } else {
-          next();
-        }
-      });
-    } else {
-      nextTick(next);
-    }
+    log.debug(ctx, `afterRemote: (enter) MethodString: ${ctx.methodString}`);
+    runPersonalizations(ctx, false, function(err){
+      log.debug(ctx, `afterRemote: (leave) MethodString: ${ctx.methodString}`);
+      next(err);
+    });
+    
   });
 
   TargetModel.beforeRemote('**', function ServicePersonalizationBeforeRemoteHook() {
@@ -108,59 +45,12 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
     let ctx = args[0];
     let next = args[args.length - 1];
 
-    log.debug(ctx, `beforeRemote: MethodString: ${ctx.methodString}`);
+    log.debug(ctx, `beforeRemote: (enter) MethodString: ${ctx.methodString}`);
 
-    let ctxInfo = parseMethodString(ctx.methodString);
-    let applyFlag = true;
-    let data = null;
-    let toModel = TARGET_MODEL_NAME;
-
-    if (ctxInfo.isStatic) {
-      switch (ctxInfo.methodName) {
-        case 'create':
-        case 'patchOrCreate':
-          data = ctx.req.body;
-          break;
-        case 'find':
-        case 'findById':
-        case 'findOne':
-          data = {};
-          break;
-        default:
-          data = {};
-          log.debug(ctx, `beforeRemote: Unhandled static: ${ctx.methodString}`);
-          applyFlag = false;
-      }
-    } else {
-      switch (ctxInfo.methodName) {
-        case 'patchAttributes':
-          data = ctx.req.body;
-          break;
-        default:
-          let relationInfo = getRelationInfo(TargetModel, ctxInfo);
-          if(relationInfo.isRelation) {
-            applyFlag = true;
-            toModel = relationInfo.model;
-            data = {};
-          }
-          else {
-            applyFlag = false;
-            log.debug(ctx, `beforeRemote: Unhandled non-static - ${ctx.methodString}`);            
-          }
-      }
-    }
-
-    if (applyFlag) {
-      let personalizationOptions = {
-        isBeforeRemote: true,
-        context: ctx
-      };
-
-      applyServicePersonalization(toModel, data, personalizationOptions, function (err) {
-        next(err);
-      });
-    } else {
-      nextTick(next);
-    }
+    // let ctxInfo = parseMethodString(ctx.methodString);
+    runPersonalizations(ctx, true, function(err){
+      log.debug(ctx, `beforeRemote: (leave) MethodString: ${ctx.methodString}`);
+      next(err);
+    });
   });
 };
