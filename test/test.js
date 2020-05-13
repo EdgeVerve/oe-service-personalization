@@ -28,11 +28,11 @@ var basePath = app.get('restApiRoot');
 var productCatalogUrl = basePath + '/ProductCatalogs';
 var productOwnerUrl = basePath + '/ProductOwners';
 describe(chalk.blue('service personalization test started...'), function () {
-  this.timeout(10000);
+  // this.timeout(10000);
   var accessToken;
   before('wait for boot scripts to complete', function (done) {
     app.on('test-start', function () {
-      console.log('booted');
+      // console.log('booted');
       ProductCatalog = loopback.findModel('ProductCatalog');
       ProductCatalog.destroyAll(function (err, info) {
         return done(err);
@@ -2073,7 +2073,7 @@ describe(chalk.blue('service personalization test started...'), function () {
   });
 
   describe('Remote method tests', () => {
-    before('re-inserting the personalization rules', done => {
+    beforeEach('re-inserting the personalization rules', done => {
       let data = [
         {
           "modelName" : "AddressBook",
@@ -2103,10 +2103,30 @@ describe(chalk.blue('service personalization test started...'), function () {
       });
     });
 
-    it('t41 should demonstrate data getting personalized via a remote method', done => {
+    it('t41(a) should demonstrate data getting personalized via a custom remote method of model that has mixin enabled', done => {
       
       let ownerId = 12;
       let url = `${productOwnerUrl}/${ownerId}/demandchain?access_token=${accessToken}`;
+      api.get(url)
+        .set('Accept', 'application/json')
+        .set('REMOTE_USER', 'testUser')
+        .expect(200)
+        .end((err, resp) => {
+          if(err) {
+            done(err);
+          }
+          else {
+            let result = resp.body;
+            expect(result).to.deep.equal(httpResult);
+            done();
+          }
+        })
+    });
+
+    it('t41(b) should personalize the response of a custom remote method of model that does not have mixin enabled (api usage)', done => {
+      let ownerId = 12;
+      let pseudoProductOwnerUrl = '/api/PseudoProductOwners';
+      let url = `${pseudoProductOwnerUrl}/${ownerId}/demandchain?access_token=${accessToken}`;
       api.get(url)
         .set('Accept', 'application/json')
         .set('REMOTE_USER', 'testUser')
