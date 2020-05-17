@@ -1,6 +1,6 @@
 var oecloud = require('oe-cloud');
 var loopback = require('loopback');
-
+var async = require('async');
 oecloud.boot(__dirname, function (err) {
   if (err) {
     console.log(err);
@@ -2141,6 +2141,189 @@ describe(chalk.blue('service personalization test started...'), function () {
             done();
           }
         })
+    });
+  });
+
+  /**
+   * These tests describe how the property
+   * level personalizations work
+   * 
+   */
+  describe('property level personalizations', () => {
+    let ModelDefinition = null;
+    before('deleting customer model created before', done => {
+      ModelDefinition = loopback.findModel('ModelDefinition');
+
+      let removeOldData = done => {
+        let Customer = loopback.findModel("Customer");
+        Customer.destroyAll({}, {}, done);
+      };
+
+      let removeModelDef = function(done) {
+        ModelDefinition.findOne({ name: 'Customer'}, {}, function(err, def){
+          if(err) {
+            return done(err);
+          }
+          let id = def.id;
+          ModelDefinition.destroyById( id, {}, function(err){
+            done(err);
+          });
+        });
+      };
+
+      async.eachSeries([removeOldData, removeModelDef],function(fn, cb){
+        fn(cb);
+      }, function(err){
+        done(err);
+      });      
+    });
+
+    before('creating models dynamically', done => {
+      
+      let AccountModel = {
+        name:'Account',
+        properties: {
+          "accountType": "string",
+          "openedOn": "date"
+        },
+        relations: {
+          "customer": {
+            type: "embedsOne",
+            model: "Customer",
+            property:"linkedCustomer"
+          }
+        }
+      };
+      
+      let KycModel = {
+        name:'Kyc',
+        plural: 'Kyc',
+        properties: {
+          "criteria": "string",
+          "code": "string",
+          "remark":"string",
+          "score": "number"
+        }
+      };
+
+      let CustomerModel = {
+        name: "Customer",
+        base:"BaseEntity",
+        properties: {
+          firstName: "string",
+          lastName: "string",
+          salutation: "string",
+          dob: "date",
+          kycInfo: [ 'Kyc' ]
+        },
+        relations: {
+          all_accounts : {
+            type: 'hasMany',
+            model: 'Account'
+          }
+        }
+      };
+
+
+      async.eachSeries([KycModel, CustomerModel, AccountModel], function(spec, cb){
+        spec.mixins = { ServicePersonalizationMixin: true }; //enabling service personalization mixin
+        ModelDefinition.create(spec, {}, function(err){
+          cb(err);
+        });
+      }, function(err){
+        done(err);
+      });
+    });
+
+    let Customer = null;
+    before('creating a new customers', done => {
+      Customer = loopback.findModel('Customer');
+      let data = [
+        {
+          id: 1,
+          firstName: 'Cust',
+          lastName:'One',
+          salutation: 'Mr',
+          kycInfo: [
+            {
+              'criteria': 'isEmployed',
+              'code': 'BCODE-0056',
+              'remark': 'SC Bank',
+              'score': 56.23
+            },
+            {
+              'criteria': 'allowedAgeLimit',
+              'code': 'BCODE-0057',
+              'remark': 'witin 25 to 35',
+              'score': 76.24
+            }
+          ],
+          dob: new Date(1987, 3, 12)
+        },
+        {
+          id: 2,
+          firstName: 'Cust',
+          lastName:'Two',
+          salutation: 'Mrs',
+          kycInfo: [
+            {
+              'criteria': 'isEmployed',
+              'code': 'BCODE-0056',
+              'remark': 'Unemployed',
+              'score': -23.23
+            },
+            {
+              'criteria': 'allowedAgeLimit',
+              'code': 'BCODE-0058',
+              'remark': 'witin 25 to 35',
+              'score': 76.24
+            }
+          ],
+          dob: new Date(1989, 3, 12)
+        }
+      ];
+      Customer.create(data, {}, function(err){
+        done(err);
+      });
+    });
+
+    before('creating personalization rules', done => {
+      let data = {
+        modelName: 'Kyc',
+        personalizationRule: {
+          fieldMask: {
+            code: {
+              'pattern': '([A-Z]{4})\\-(\d{4})',
+              'maskCharacter': '*',
+              'format': '$1-$2',
+              'mask': ['$1']
+            }
+          }
+        }
+      };
+      PersonalizationRule.create(data, {}, function(err){
+        done(err);
+      });
+    });
+
+    it('t42 when fetching a customer record the kycInfo field should also be personalized', done => {
+      let custUrl = `/api/Customers/1`;
+      api.get(custUrl)
+      .set('Accept', 'application/json')
+      .set('REMOTE_USER', 'testUser')
+      .expect(200)
+      .end((err, resp) =>{
+        done(err);
+        let result = resp.body;
+        expect(result).to.be.object;
+        expect(result).to.have.property('firstName');
+        expect(result.kycInfo).to.be.array;
+        result.kycInfo.forEach(kycItem => {
+          let lastFour = kycItem.code.substr(-4);
+          let expectedString = `*****-${lastFour}`;
+          expect(kycItem.code).to.equal(expectedString);
+        });
+      });
     });
   });
 });
