@@ -2150,36 +2150,10 @@ describe(chalk.blue('service personalization test started...'), function () {
    * 
    */
   describe('property level personalizations', () => {
-    let ModelDefinition = null;
-    before('deleting customer model created before', done => {
-      ModelDefinition = loopback.findModel('ModelDefinition');
-
-      let removeOldData = done => {
-        let Customer = loopback.findModel("Customer");
-        Customer.destroyAll({}, {}, done);
-      };
-
-      let removeModelDef = function(done) {
-        ModelDefinition.findOne({ name: 'Customer'}, {}, function(err, def){
-          if(err) {
-            return done(err);
-          }
-          let id = def.id;
-          ModelDefinition.destroyById( id, {}, function(err){
-            done(err);
-          });
-        });
-      };
-
-      async.eachSeries([removeOldData, removeModelDef],function(fn, cb){
-        fn(cb);
-      }, function(err){
-        done(err);
-      });      
-    });
+    let ModelDefinition = null;   
 
     before('creating models dynamically', done => {
-      
+      ModelDefinition = loopback.findModel('ModelDefinition');
       let AccountModel = {
         name:'Account',
         properties: {
@@ -2207,7 +2181,7 @@ describe(chalk.blue('service personalization test started...'), function () {
       };
 
       let CustomerModel = {
-        name: "Customer",
+        name: "XCustomer",
         base:"BaseEntity",
         properties: {
           firstName: "string",
@@ -2237,7 +2211,7 @@ describe(chalk.blue('service personalization test started...'), function () {
 
     let Customer = null;
     before('creating a new customers', done => {
-      Customer = loopback.findModel('Customer');
+      Customer = loopback.findModel('XCustomer');
       let data = [
         {
           id: 1,
@@ -2293,7 +2267,7 @@ describe(chalk.blue('service personalization test started...'), function () {
         personalizationRule: {
           fieldMask: {
             code: {
-              'pattern': '([A-Z]{4})\\-(\d{4})',
+              'pattern': '([A-Z]{5})\\-(\\d{4})',
               'maskCharacter': '*',
               'format': '$1-$2',
               'mask': ['$1']
@@ -2307,7 +2281,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
 
     it('t42 when fetching a customer record the kycInfo field should also be personalized', done => {
-      let custUrl = `/api/Customers/1`;
+      let custUrl = `/api/XCustomers/1`;
       api.get(custUrl)
       .set('Accept', 'application/json')
       .set('REMOTE_USER', 'testUser')
