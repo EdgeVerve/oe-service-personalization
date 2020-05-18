@@ -33,11 +33,10 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
     let next = args[args.length - 1];
     // let callCtx = ctx.req.callContext;
     log.debug(ctx, `afterRemote: (enter) MethodString: ${ctx.methodString}`);
-    runPersonalizations(ctx, false, function(err){
+    runPersonalizations(ctx, false, function (err) {
       log.debug(ctx, `afterRemote: (leave${err ? '- with error' : ''}) MethodString: ${ctx.methodString}`);
       next(err);
     });
-    
   });
 
   TargetModel.beforeRemote('**', function ServicePersonalizationBeforeRemoteHook() {
@@ -48,7 +47,7 @@ module.exports = function ServicePersonalizationMixin(TargetModel) {
     log.debug(ctx, `beforeRemote: (enter) MethodString: ${ctx.methodString}`);
 
     // let ctxInfo = parseMethodString(ctx.methodString);
-    runPersonalizations(ctx, true, function(err){
+    runPersonalizations(ctx, true, function (err) {
       log.debug(ctx, `beforeRemote: (leave${err ? '- with error' : ''}) MethodString: ${ctx.methodString}`);
       next(err);
     });
