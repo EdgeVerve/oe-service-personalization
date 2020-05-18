@@ -2189,7 +2189,8 @@ describe(chalk.blue('service personalization test started...'), function () {
           salutation: "string",
           dob: "date",
           kycInfo: ['Kyc'],
-          custRef: "string"
+          custRef: "string",
+          aadhar: "number"
         },
         relations: {
           all_accounts: {
@@ -2234,7 +2235,8 @@ describe(chalk.blue('service personalization test started...'), function () {
             }
           ],
           dob: new Date(1987, 3, 12),
-          custRef: "HDFC-VCHRY-12354"
+          custRef: "HDFC-VCHRY-12354",
+          aadhar: 12345678
         },
         {
           id: 2,
@@ -2256,7 +2258,8 @@ describe(chalk.blue('service personalization test started...'), function () {
             }
           ],
           dob: new Date(1989, 3, 12),
-          custRef: "ICICI-BLR-0056"
+          custRef: "ICICI-BLR-0056",
+          aadhar: 45248632
         }
       ];
       Customer.create(data, {}, function (err) {
@@ -2351,6 +2354,14 @@ describe(chalk.blue('service personalization test started...'), function () {
               dateMask: {
                 format: 'MMM/yyyy'
               }
+            },
+            aadhar: {
+              numberMask: {
+                pattern: '(\\d{2})(\\d{2})(\\d{2})(\\d{2})',
+                format: '$1 $2 $3 $4',
+                mask: ['$3', '$4'],
+                maskCharacter: '*'
+              }
             }
           }
         }
@@ -2387,6 +2398,9 @@ describe(chalk.blue('service personalization test started...'), function () {
       expect(apiResponse.dob).to.equal("Apr/1989");
     });
 
+    it('t46 should apply fieldMask on the aadhar field (numberMask)', () => {
+      expect(apiResponse.aadhar).to.equal('45 24 ** **');
+    });
   });
 });
 
