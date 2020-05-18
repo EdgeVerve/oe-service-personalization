@@ -1791,7 +1791,7 @@ describe(chalk.blue('service personalization test started...'), function () {
         "id": 12
       };
       ProductOwner = loopback.findModel('ProductOwner');
-      ProductOwner.create(data, function(err){
+      ProductOwner.create(data, function (err) {
         done(err);
       });
     });
@@ -1799,28 +1799,28 @@ describe(chalk.blue('service personalization test started...'), function () {
     before('creating a catalog', done => {
       let data = [
         {
-          "name" : "Patanjali Paste",
+          "name": "Patanjali Paste",
           "category": "FMCG",
           "desc": "Herbal paste that is all vegan",
-          "price": {"currency":"INR", "amount": 45 },
+          "price": { "currency": "INR", "amount": 45 },
           "isAvailable": false,
-          "keywords": [ "toothpaste", "herbal" ],
-          "productOwnerId" : 12,
+          "keywords": ["toothpaste", "herbal"],
+          "productOwnerId": 12,
           "id": "prod1"
         },
         {
-          "name" : "Patanjali Facial",
+          "name": "Patanjali Facial",
           "category": "Cosmetics",
           "desc": "Ayurvedic cream to get rid of dark spots, pimples, etc",
-          "price": {"currency":"INR", "amount": 70 },
+          "price": { "currency": "INR", "amount": 70 },
           "isAvailable": true,
-          "keywords": [ "face", "herbal", "cream" ],
-          "productOwnerId" : 12,
-          "id" : "prod2"
+          "keywords": ["face", "herbal", "cream"],
+          "productOwnerId": 12,
+          "id": "prod2"
         }
       ];
 
-      ProductCatalog.create(data, function(err){
+      ProductCatalog.create(data, function (err) {
         done(err);
       });
     });
@@ -1837,18 +1837,18 @@ describe(chalk.blue('service personalization test started...'), function () {
         }
       ];
       let Store = loopback.findModel('Store');
-      Store.create(data, function(err) {
+      Store.create(data, function (err) {
         done(err);
       });
     });
 
     before('creating store stock', done => {
       let data = [
-        {"storeId": "store1", "productCatalogId": "prod1" },
-        {"storeId": "store2", "productCatalogId": "prod2" }
+        { "storeId": "store1", "productCatalogId": "prod1" },
+        { "storeId": "store2", "productCatalogId": "prod2" }
       ];
       let StoreStock = loopback.findModel('StoreStock');
-      StoreStock.create(data, function(err) {
+      StoreStock.create(data, function (err) {
         done(err);
       });
     });
@@ -1858,18 +1858,18 @@ describe(chalk.blue('service personalization test started...'), function () {
         {
           "line1": "5th ave",
           "line2": "Richmond",
-          "landmark":"Siegel Building",
+          "landmark": "Siegel Building",
           "pincode": "434532",
           "id": "addr1",
-          "storeId":"store1"
+          "storeId": "store1"
         },
         {
           "line1": "7th ave",
           "line2": "Wellington Broadway",
-          "landmark":"Carl Sagan's Office",
+          "landmark": "Carl Sagan's Office",
           "pincode": "434543",
           "id": "addr2",
-          "storeId":"store1"
+          "storeId": "store1"
         },
         {
           "line1": "Patanjali Lane",
@@ -1882,14 +1882,14 @@ describe(chalk.blue('service personalization test started...'), function () {
         {
           "line1": "Orchard St",
           "line2": "Blumingdale's",
-          "landmark":"Post Office",
+          "landmark": "Post Office",
           "pincode": "673627",
           "id": "addr4",
-          "storeId":"store2"
+          "storeId": "store2"
         }
       ];
       let AddressBook = loopback.findModel('AddressBook');
-      AddressBook.create(data, function(err){
+      AddressBook.create(data, function (err) {
         done(err);
       });
     });
@@ -1929,12 +1929,12 @@ describe(chalk.blue('service personalization test started...'), function () {
       ];
 
       let PhoneNumber = loopback.findModel('PhoneNumber');
-      PhoneNumber.create(data, function(err){ 
+      PhoneNumber.create(data, function (err) {
         done(err);
       });
     });
 
-    
+
 
     it('t39 should apply child model personalization when included from parent with no personalization', done => {
       let data = {
@@ -1963,7 +1963,7 @@ describe(chalk.blue('service personalization test started...'), function () {
               .set('REMOTE_USER', 'testUser')
               .set('region', 'kl')
               .expect(200).end((err, resp) => {
-                if(err) {
+                if (err) {
                   done(err);
                 }
                 else {
@@ -1977,11 +1977,11 @@ describe(chalk.blue('service personalization test started...'), function () {
           }
         });
     });
-    
+
     it('t40(a) should demonstrate personalization is being applied recursively', done => {
       let data = [
         {
-          "modelName" : "AddressBook",
+          "modelName": "AddressBook",
           "personalizationRule": {
             "mask": {
               "landmark": true
@@ -1992,7 +1992,7 @@ describe(chalk.blue('service personalization test started...'), function () {
           "modelName": "PhoneNumber",
           "personalizationRule": {
             "fieldMask": {
-              "number" : {
+              "number": {
                 "pattern": "([0-9]{3})([0-9]{3})([0-9]{4})",
                 "maskCharacter": "X",
                 "format": "($1) $2-$3",
@@ -2003,24 +2003,24 @@ describe(chalk.blue('service personalization test started...'), function () {
         }
       ];
 
-      PersonalizationRule.create(data, {}, function(err){
-        if(err) {
+      PersonalizationRule.create(data, {}, function (err) {
+        if (err) {
           return done(err)
         }
         let filter = {
-          "include": [ 
+          "include": [
             {
-              "ProductCatalog" : {
+              "ProductCatalog": {
                 "store": {
-                  "store" : { 
-                    "addresses" : "phones"  
-                  } 
-                } 
-              } 
-            }, 
-            "address" 
+                  "store": {
+                    "addresses": "phones"
+                  }
+                }
+              }
+            },
+            "address"
           ],
-          "where": { "id": 12 } 
+          "where": { "id": 12 }
         };
         let filterString = encodeURIComponent(JSON.stringify(filter));
         let url = `${productOwnerUrl}/findOne?access_token=${accessToken}&&filter=${filterString}`;
@@ -2029,7 +2029,7 @@ describe(chalk.blue('service personalization test started...'), function () {
           .set('REMOTE_USER', 'testUser')
           .expect(200)
           .end((err, resp) => {
-            if(err){
+            if (err) {
               done(err)
             }
             else {
@@ -2040,35 +2040,35 @@ describe(chalk.blue('service personalization test started...'), function () {
               // console.log(JSON.stringify(result,null, 2));
               _.flatten(
                 _.flatten(result.ProductCatalog.map(item => item.store.store.addresses))
-                .map(x => x.phones)
+                  .map(x => x.phones)
               ).forEach(ph => {
                 let substr = ph.number.substr(0, 10);
                 expect(substr).to.equal('(XXX) XXX-');
               });
-              
-                
+
+
               done();
             }
           });
       });
-    });    
+    });
 
-    it('t40(b) should apply service personalization to a related model invoked via remote call', function(done) {
+    it('t40(b) should apply service personalization to a related model invoked via remote call', function (done) {
       let url = `${productOwnerUrl}/1/ProductCatalog?access_token=${accessToken}`;
       api.get(url)
-      .set('Accept', 'application/json')
-      .set('REMOTE_USER', 'testUser')
-      .set('region', 'kl')
-      .expect(200)
-      .end((err, resp) => {
-        if(err){
-          return done(err);
-        }
-        let result = resp.body;
-        // console.log(resp.body);
-        expect(result[0].modelNo).to.equal('123456XXXX');
-        done();
-      });
+        .set('Accept', 'application/json')
+        .set('REMOTE_USER', 'testUser')
+        .set('region', 'kl')
+        .expect(200)
+        .end((err, resp) => {
+          if (err) {
+            return done(err);
+          }
+          let result = resp.body;
+          // console.log(resp.body);
+          expect(result[0].modelNo).to.equal('123456XXXX');
+          done();
+        });
     });
   });
 
@@ -2076,7 +2076,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     beforeEach('re-inserting the personalization rules', done => {
       let data = [
         {
-          "modelName" : "AddressBook",
+          "modelName": "AddressBook",
           "personalizationRule": {
             "mask": {
               "landmark": true
@@ -2087,7 +2087,7 @@ describe(chalk.blue('service personalization test started...'), function () {
           "modelName": "PhoneNumber",
           "personalizationRule": {
             "fieldMask": {
-              "number" : {
+              "number": {
                 "pattern": "([0-9]{3})([0-9]{3})([0-9]{4})",
                 "maskCharacter": "X",
                 "format": "($1) $2-$3",
@@ -2098,13 +2098,13 @@ describe(chalk.blue('service personalization test started...'), function () {
         }
       ]
 
-      PersonalizationRule.create(data, {}, function(err){
+      PersonalizationRule.create(data, {}, function (err) {
         done(err);
       });
     });
 
     it('t41(a) should demonstrate data getting personalized via a custom remote method of model that has mixin enabled', done => {
-      
+
       let ownerId = 12;
       let url = `${productOwnerUrl}/${ownerId}/demandchain?access_token=${accessToken}`;
       api.get(url)
@@ -2112,7 +2112,7 @@ describe(chalk.blue('service personalization test started...'), function () {
         .set('REMOTE_USER', 'testUser')
         .expect(200)
         .end((err, resp) => {
-          if(err) {
+          if (err) {
             done(err);
           }
           else {
@@ -2132,7 +2132,7 @@ describe(chalk.blue('service personalization test started...'), function () {
         .set('REMOTE_USER', 'testUser')
         .expect(200)
         .end((err, resp) => {
-          if(err) {
+          if (err) {
             done(err);
           }
           else {
@@ -2150,12 +2150,12 @@ describe(chalk.blue('service personalization test started...'), function () {
    * 
    */
   describe('property level personalizations', () => {
-    let ModelDefinition = null;   
+    let ModelDefinition = null;
 
     before('creating models dynamically', done => {
       ModelDefinition = loopback.findModel('ModelDefinition');
       let AccountModel = {
-        name:'Account',
+        name: 'Account',
         properties: {
           "accountType": "string",
           "openedOn": "date"
@@ -2164,34 +2164,35 @@ describe(chalk.blue('service personalization test started...'), function () {
           "customer": {
             type: "embedsOne",
             model: "Customer",
-            property:"linkedCustomer"
+            property: "linkedCustomer"
           }
         }
       };
-      
+
       let KycModel = {
-        name:'Kyc',
+        name: 'Kyc',
         plural: 'Kyc',
         properties: {
           "criteria": "string",
           "code": "string",
-          "remark":"string",
+          "remark": "string",
           "score": "number"
         }
       };
 
       let CustomerModel = {
         name: "XCustomer",
-        base:"BaseEntity",
+        base: "BaseEntity",
         properties: {
           firstName: "string",
           lastName: "string",
           salutation: "string",
           dob: "date",
-          kycInfo: [ 'Kyc' ]
+          kycInfo: ['Kyc'],
+          custRef: "string"
         },
         relations: {
-          all_accounts : {
+          all_accounts: {
             type: 'hasMany',
             model: 'Account'
           }
@@ -2199,12 +2200,12 @@ describe(chalk.blue('service personalization test started...'), function () {
       };
 
 
-      async.eachSeries([KycModel, CustomerModel, AccountModel], function(spec, cb){
+      async.eachSeries([KycModel, CustomerModel, AccountModel], function (spec, cb) {
         spec.mixins = { ServicePersonalizationMixin: true }; //enabling service personalization mixin
-        ModelDefinition.create(spec, {}, function(err){
+        ModelDefinition.create(spec, {}, function (err) {
           cb(err);
         });
-      }, function(err){
+      }, function (err) {
         done(err);
       });
     });
@@ -2216,7 +2217,7 @@ describe(chalk.blue('service personalization test started...'), function () {
         {
           id: 1,
           firstName: 'Cust',
-          lastName:'One',
+          lastName: 'One',
           salutation: 'Mr',
           kycInfo: [
             {
@@ -2232,12 +2233,13 @@ describe(chalk.blue('service personalization test started...'), function () {
               'score': 76.24
             }
           ],
-          dob: new Date(1987, 3, 12)
+          dob: new Date(1987, 3, 12),
+          custRef: "HDFC-VCHRY-12354"
         },
         {
           id: 2,
           firstName: 'Cust',
-          lastName:'Two',
+          lastName: 'Two',
           salutation: 'Mrs',
           kycInfo: [
             {
@@ -2253,10 +2255,11 @@ describe(chalk.blue('service personalization test started...'), function () {
               'score': 76.24
             }
           ],
-          dob: new Date(1989, 3, 12)
+          dob: new Date(1989, 3, 12),
+          custRef: "ICICI-BLR-0056"
         }
       ];
-      Customer.create(data, {}, function(err){
+      Customer.create(data, {}, function (err) {
         done(err);
       });
     });
@@ -2275,7 +2278,7 @@ describe(chalk.blue('service personalization test started...'), function () {
           }
         }
       };
-      PersonalizationRule.create(data, {}, function(err){
+      PersonalizationRule.create(data, {}, function (err) {
         done(err);
       });
     });
@@ -2283,22 +2286,107 @@ describe(chalk.blue('service personalization test started...'), function () {
     it('t42 when fetching a customer record the kycInfo field should also be personalized', done => {
       let custUrl = `/api/XCustomers/1`;
       api.get(custUrl)
-      .set('Accept', 'application/json')
-      .set('REMOTE_USER', 'testUser')
-      .expect(200)
-      .end((err, resp) =>{
-        done(err);
-        let result = resp.body;
-        expect(result).to.be.object;
-        expect(result).to.have.property('firstName');
-        expect(result.kycInfo).to.be.array;
-        result.kycInfo.forEach(kycItem => {
-          let lastFour = kycItem.code.substr(-4);
-          let expectedString = `*****-${lastFour}`;
-          expect(kycItem.code).to.equal(expectedString);
+        .set('Accept', 'application/json')
+        .set('REMOTE_USER', 'testUser')
+        .expect(200)
+        .end((err, resp) => {
+          done(err);
+          let result = resp.body;
+          expect(result).to.be.object;
+          expect(result).to.have.property('firstName');
+          expect(result.kycInfo).to.be.array;
+          result.kycInfo.forEach(kycItem => {
+            let lastFour = kycItem.code.substr(-4);
+            let expectedString = `*****-${lastFour}`;
+            expect(kycItem.code).to.equal(expectedString);
+          });
         });
+    });
+  });
+
+  /**
+   * These set of test cases describe
+   * advanced configuration for fieldMask
+   * operation
+   */
+
+  describe('Advanced fieldMask configurations', () => {
+    it('t43 applying string mask on a dob field (date) should throw an error', done => {
+      let record = {
+        modelName: 'XCustomer',
+        personalizationRule: {
+          fieldMask: {
+            dob: {
+              'pattern': '([0-9]{3})([0-9]{3})([0-9]{4})',
+              'maskCharacter': 'X',
+              'format': '($1) $2-$3',
+              'mask': ['$3']
+            }
+          }
+        }
+      };
+
+      PersonalizationRule.create(record, {}, function (err) {
+        if (err) {
+          return done();
+        }
+        expect(false, 'Should not happen').to.be.ok;
       });
     });
+
+    before('setup rules', done => {
+      let data = {
+        modelName: 'XCustomer',
+        personalizationRule: {
+          fieldMask: {
+            custRef: {
+              stringMask: {
+                'pattern': '(\\w+)\\-(\\w+)\\-(\\d+)',
+                'maskCharacter': 'X',
+                'format': '$1-$2-$3',
+                'mask': ['$3']
+              }
+            },
+            dob: {
+              dateMask: {
+                format: 'MMM/yyyy'
+              }
+            }
+          }
+        }
+      };
+
+      PersonalizationRule.create(data, {}, function (err) {
+        done(err);
+      });
+    });
+    let apiResponse;
+    before('fetch api response', done => {
+      let url = '/api/XCustomers/2';
+      api.get(url)
+        .set('Accept', 'application/json')
+        .expect(200)
+        .end((err, resp) => {
+          if (err) {
+            return done(err);
+          }
+          let result = resp.body;
+          // expect(result).to.be.object;
+          // expect(result.custRef).to.equal('ICICI-BLR-XXXX');
+          apiResponse = result;
+          done();
+        });
+    });
+
+    it('t44 should apply a fieldMask on the custRef field which is of type string', () => {
+      expect(apiResponse).to.be.object;
+      expect(apiResponse.custRef).to.equal('ICICI-BLR-XXXX');
+    });
+
+    it('t45 should apply a fieldMask to the dob field and display only month and year', () =>{
+      expect(apiResponse.dob).to.equal("Apr/1989");
+    });
+
   });
 });
 
