@@ -2402,6 +2402,78 @@ describe(chalk.blue('service personalization test started...'), function () {
       expect(apiResponse.aadhar).to.equal('45 24 ** **');
     });
   });
+
+  /**
+   * these tests describe the gating of personalization rules
+   * based on method of the model.
+   */
+
+  describe('Method based service personalization', () => {
+    before('creating personalization rules', done => {
+      let data = {
+        modelName: 'XCustomer',
+        methodName: 'find',
+        personalizationRule: {
+          fieldMask: {
+            custRef: {
+              stringMask: {
+                'pattern': '(\\w+)\\-(\\w+)\\-(\\d+)',
+                'maskCharacter': 'X',
+                'format': '$1-$2-$3',
+                'mask': ['$3']
+              }
+            }
+          }
+        }
+      };
+
+      PersonalizationRule.create(data, {}, function(err){
+        done(err);
+      });      
+    });
+
+    let apiCall1Response;
+    before('api call 1 - doing find() remote', done => {
+      let url = '/api/XCustomers';
+      api.get(url)
+        .set('Accept', 'application/json')
+        .expect(200)
+        .end((err, resp) => {
+          if (err) {
+            return done(err);
+          }
+          let result = resp.body;
+          apiCall1Response = result;
+          done();
+        });
+    });
+
+    let apiCall2Response;
+    before('api call 2 - doing findById() remote', done => {
+      let url = '/api/XCustomers/2';
+      api.get(url)
+        .set('Accept', 'application/json')
+        .expect(200)
+        .end((err, resp) => {
+          if (err) {
+            return done(err);
+          }
+          let result = resp.body;
+          apiCall2Response = result;
+          done();
+        });
+    });
+
+    it('t47 should assert that only find() call (i.e, api call 1) is personalized', () => {
+      expect(apiCall1Response).to.be.array;
+      apiCall1Response.forEach(rec => {
+        expect(rec.custRef).to.include('X');
+      });
+      expect(apiCall2Response).to.be.object;
+      expect(apiCall2Response.custRef).to.not.include('X');
+    });
+  });
+
 });
 
 
