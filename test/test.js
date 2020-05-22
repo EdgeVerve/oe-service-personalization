@@ -2474,6 +2474,173 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
   });
 
+
+  /**
+   * These tests describe the role based gating
+   * of service personalization
+   */
+
+  describe('Role-based service personalization', () => {
+    let allUsers;
+    before('setting up users and roles', done => {
+      let User = loopback.findModel('User');
+      let Role = loopback.findModel('Role');
+      let RoleMapping = loopback.findModel('RoleMapping');
+      expect(typeof User !== 'undefined').to.be.ok;
+      expect(typeof Role !== 'undefined').to.be.ok;
+      expect(typeof RoleMapping !== 'undefined').to.be.ok;
+
+      User.create([
+        { username: 'John', email: 'John@ev.com', password: 'password1' },
+        { username: 'Jane', email: 'Jane@ev.com', password: 'password1' },
+        { username: 'Bob', email: 'Bob@ev.com', password: 'password1' },
+        { username: 'Martha', email: 'Martha@ev.com', password: 'password1' }
+      ], function(err, users){
+        if(err){
+          return done(err);
+        }
+        allUsers = users;
+
+        Role.create([
+          { name: 'admin'},
+          { name: 'manager'},
+          { name: 'teller' },
+          { name: 'agent' },          
+        ], function(err, roles){
+          if(err){
+            return done(err);
+          }
+
+          let assignUserRole = (user, role) => cb => role.principals.create({
+            principalType: RoleMapping.USER,
+            principleId: user.id
+          }, function(err){
+            cb(err);
+          });
+          
+          ['John', 'Jane', "Bob", 'Martha'].forEach((name, idx) => {
+            expect(users[idx].username).to.equal(name);
+          });
+          
+          async.eachSeries([ 
+            assignUserRole(users[0], roles[0]),
+            assignUserRole(users[1], roles[1]),
+            assignUserRole(users[2], roles[2]),
+            assignUserRole(users[3], roles[3]),
+          ], (fn, done) => fn(done), err => {
+            done(err);
+          });
+        });
+      });
+    });
+
+    before('setup personalization rules', done => {
+      let rules = [
+        {
+          ruleName: 'for tellers',
+          modelName: 'XCustomers',
+          personalizationRule: {
+            fieldMask : {
+              aadhar: {
+                numberMask: {
+                  pattern: '(\\d{2})(\\d{2})(\\d{2})(\\d{2})',
+                  format: '$1-$2-$3-$4',
+                  mask: ['$1', '$2', '$3']
+                }
+              }
+            }
+          },
+          scope: {
+            roles: ['teller']
+          }
+        },
+        {
+          ruleName: 'for agents',
+          modelName: 'XCustomers',
+          personalizationRule: {
+            fieldMask : {
+              custRef: {
+                stringMask: {
+                  pattern: '(\\w+)\\-(\\w+)\\-(\\d+)',
+                  format: '$1-$2-$3',
+                  mask: ['$1', '$3']
+                }
+              }
+            }
+          },
+          scope: {
+            roles: ['agent']
+          }
+        }
+      ];
+
+      PersonalizationRule.create(rules, function(err){
+        done(err);
+      });
+    });
+    
+    let accessTokens;
+    before('create access tokens', done => {
+      let url = '/api/Users/login';
+      async.map(allUsers, function(user, cb){
+        let { username } = user;
+        api.post(url)
+          .set('Accept', 'application/json')
+          .send({ username, password: 'password1'})
+          .expect(200)
+          .end((err, resp) => {
+            if(err) {
+              return cb(err);
+            }
+            cb(null, { username, token: resp.body.id });
+          });
+      }, function(err, results) {
+        if(err) {
+          return done(err);
+        }
+        accessTokens = results.reduce((carrier, obj) => Object.assign(carrier, {[obj.username]: obj.token}), {});
+        done();
+      });
+    });
+
+    let tellerResponse;
+    before('access teller data via remote', done => {
+      let accessToken = accessTokens['Bob'];
+      let url = `/api/XCustomer/2?accessToken=${accessToken}`;
+      api.get(url)
+        .set("Accept", 'application/json')
+        .expect(200)
+        .end((err, resp) => {
+          if(err) {
+            return done(err);
+          }
+          tellerResponse = resp.body;
+          done();
+        });
+    });
+
+    let agentResponse;
+    before('access teller data via remote', done => {
+      let accessToken = accessTokens['Martha'];
+      let url = `/api/XCustomer/2?accessToken=${accessToken}`;
+      api.get(url)
+        .set("Accept", 'application/json')
+        .expect(200)
+        .end((err, resp) => {
+          if(err) {
+            return done(err);
+          }
+          agentResponse = resp.body;
+          done();
+        });
+    });
+
+    it('t48 should assert that agentResponse and tellerResponse is not identital', () => {
+      expect(tellerResponse).to.not.deep.equal(agentResponse);
+    });
+
+  });
+
 });
 
 
