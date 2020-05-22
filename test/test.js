@@ -2606,7 +2606,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     let tellerResponse;
     before('access teller data via remote', done => {
       let accessToken = accessTokens['Bob'];
-      let url = `/api/XCustomers/2?accessToken=${accessToken}`;
+      let url = `/api/XCustomers/2?access_token=${accessToken}`;
       api.get(url)
         .set("Accept", 'application/json')
         .expect(200)
@@ -2622,7 +2622,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     let agentResponse;
     before('access agent data via remote', done => {
       let accessToken = accessTokens['Martha'];
-      let url = `/api/XCustomers/2?accessToken=${accessToken}`;
+      let url = `/api/XCustomers/2?access_token=${accessToken}`;
       api.get(url)
         .set("Accept", 'application/json')
         .expect(200)
