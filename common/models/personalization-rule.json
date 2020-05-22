@@ -39,5 +39,7 @@
   "relations": {},
   "acls": [],
   "methods": {},
-  "mixins": {}
+  "mixins": {
+    "DataPersonalizationMixin": true
+  }
 }
