@@ -31,7 +31,7 @@
     },
     "methodName" : {
       "type": "string",
-      "default": "*",
+      "default": "**",
       "description": "The model methodName this rule should apply to. Should be the methodName (static/instance) or wildcards you specify in a afterRemote()/beforeRemote(). Default '*'"
     }
   },
@@ -39,7 +39,5 @@
   "relations": {},
   "acls": [],
   "methods": {},
-  "mixins": {
-    "DataPersonalizationMixin": true
-  }
+  "mixins": {}
 }

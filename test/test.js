@@ -2538,7 +2538,7 @@ describe(chalk.blue('service personalization test started...'), function () {
       let rules = [
         {
           ruleName: 'for tellers',
-          modelName: 'XCustomers',
+          modelName: 'XCustomer',
           personalizationRule: {
             fieldMask : {
               aadhar: {
@@ -2556,7 +2556,7 @@ describe(chalk.blue('service personalization test started...'), function () {
         },
         {
           ruleName: 'for agents',
-          modelName: 'XCustomers',
+          modelName: 'XCustomer',
           personalizationRule: {
             fieldMask : {
               custRef: {
@@ -2606,7 +2606,7 @@ describe(chalk.blue('service personalization test started...'), function () {
     let tellerResponse;
     before('access teller data via remote', done => {
       let accessToken = accessTokens['Bob'];
-      let url = `/api/XCustomer/2?accessToken=${accessToken}`;
+      let url = `/api/XCustomers/2?accessToken=${accessToken}`;
       api.get(url)
         .set("Accept", 'application/json')
         .expect(200)
@@ -2620,9 +2620,9 @@ describe(chalk.blue('service personalization test started...'), function () {
     });
 
     let agentResponse;
-    before('access teller data via remote', done => {
+    before('access agent data via remote', done => {
       let accessToken = accessTokens['Martha'];
-      let url = `/api/XCustomer/2?accessToken=${accessToken}`;
+      let url = `/api/XCustomers/2?accessToken=${accessToken}`;
       api.get(url)
         .set("Accept", 'application/json')
         .expect(200)
