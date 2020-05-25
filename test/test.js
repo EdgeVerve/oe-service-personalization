@@ -2066,7 +2066,8 @@ describe(chalk.blue('service personalization test started...'), function () {
           }
           let result = resp.body;
           // console.log(resp.body);
-          expect(result[0].modelNo).to.equal('123456XXXX');
+          let idx = result.findIndex(r => r.id === 'watch3');
+          expect(result[idx].modelNo).to.equal('123456XXXX');
           done();
         });
     });
