@@ -1,7 +1,8 @@
-const { applyServicePersonalization } = require('./../../../lib/service-personalizer'); // or require('oe-service-personalization/lib/service-personalizer');
+const { performServicePersonalizations } = require('./../../../lib/service-personalizer'); // or require('oe-service-personalization/lib/service-personalizer');
+const loopback = require('loopback');
 
-module.exports = function(ProductOwner) {
-  ProductOwner.remoteMethod('demandchain', {
+module.exports = function(PseudoProductOwner) {
+  PseudoProductOwner.remoteMethod('demandchain', {
     description: 'Gets the stores, store addresses, and, contacts of a product owner',
     accepts: [
       {
@@ -26,12 +27,12 @@ module.exports = function(ProductOwner) {
     http: { path: '/:id/demandchain', verb: 'get' }
   });
 
-  ProductOwner.demandchain = function(ownerId, options, done) {
+  PseudoProductOwner.demandchain = function(ownerId, options, done) {
     if(typeof done === 'undefined' && typeof options === 'function') {
       done = options;
       options = {};
     };
-
+    let ProductOwner = loopback.findModel('ProductOwner');
     let filter = {
       "include": [ 
         {
@@ -48,18 +49,16 @@ module.exports = function(ProductOwner) {
       "where": { "id": ownerId } 
     };
     ProductOwner.findOne(filter, options, function(err, result) {
-      // if(err) {
-      //   done(err)
-      // }
-      // else {
-      //   let persOpts = {
-      //     isBeforeRemote: false, context: options
-      //   };
-      //   applyServicePersonalization('ProductOwner', result, persOpts, function(err){
-      //     done(err, result);
-      //   });
-      // }
-      done(err, result);
-    })
+      if(err) {
+        return done(err);
+      }
+      let persOptions = {
+        isBeforeRemote: false,
+        context: options
+      }
+      performServicePersonalizations(ProductOwner.definition.name, result, persOptions, function(err){
+        done(err, result);
+      })
+    });
   };
 }

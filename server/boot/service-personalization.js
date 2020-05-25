@@ -15,7 +15,8 @@
 // var messaging = require('../../lib/common/global-messaging');
 var servicePersonalizer = require('../../lib/service-personalizer');
 
-module.exports = function ServicePersonalization(app) {
+module.exports = function ServicePersonalization(app, cb) {
   servicePersonalizer.init(app);
+  process.nextTick(cb);
 };
 
