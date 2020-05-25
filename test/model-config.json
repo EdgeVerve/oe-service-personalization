@@ -55,5 +55,9 @@
   "StoreStock" : {
     "dataSource" : "db",
     "public": true
+  },
+  "PseudoProductOwner" : {
+    "dataSource": "db",
+    "public": "true"
   }
 }
