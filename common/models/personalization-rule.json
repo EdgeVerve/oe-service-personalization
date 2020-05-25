@@ -32,7 +32,7 @@
     "methodName" : {
       "type": "string",
       "default": "**",
-      "description": "The model methodName this rule should apply to. Should be the methodName (static/instance) or wildcards you specify in a afterRemote()/beforeRemote(). Default '*'"
+      "description": "The model methodName this rule should apply to. Should be the methodName (static/instance) or wildcards you specify in a afterRemote()/beforeRemote(). Default '**'"
     }
   },
   "validations": [],
