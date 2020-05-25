@@ -2149,6 +2149,7 @@ describe(chalk.blue('service personalization test started...'), function () {
    * level personalizations work
    * 
    */
+  let CustomerRecords;
   describe('property level personalizations', () => {
     let ModelDefinition = null;
 
@@ -2262,6 +2263,7 @@ describe(chalk.blue('service personalization test started...'), function () {
           aadhar: 45248632
         }
       ];
+      CustomerRecords = data;
       Customer.create(data, {}, function (err) {
         done(err);
       });
@@ -2513,7 +2515,7 @@ describe(chalk.blue('service personalization test started...'), function () {
 
           let assignUserRole = (user, role) => cb => role.principals.create({
             principalType: RoleMapping.USER,
-            principleId: user.id
+            principalId: user.id
           }, function(err){
             cb(err);
           });
@@ -2635,8 +2637,47 @@ describe(chalk.blue('service personalization test started...'), function () {
         });
     });
 
-    it('t48 should assert that agentResponse and tellerResponse is not identital', () => {
+    let managerResponse;
+    before('access manager data via remote', done => {
+      let accessToken = accessTokens['Jane'];
+      let url = `/api/XCustomers/2?access_token=${accessToken}`;
+      api.get(url)
+        .set("Accept", 'application/json')
+        .expect(200)
+        .end((err, resp) => {
+          if(err) {
+            return done(err);
+          }
+          managerResponse = resp.body;
+          done();
+        });
+    });
+
+    let adminResponse;
+    before('access admin data via remote', done => {
+      let accessToken = accessTokens['John'];
+      let url = `/api/XCustomers/2?access_token=${accessToken}`;
+      api.get(url)
+        .set("Accept", 'application/json')
+        .expect(200)
+        .end((err, resp) => {
+          if(err) {
+            return done(err);
+          }
+          adminResponse = resp.body;
+          done();
+        });
+    });
+
+    it('t48 should assert that agent and teller results are not identital', () => {
       expect(tellerResponse).to.not.deep.equal(agentResponse);
+      let originalRecord = CustomerRecords[1];
+      expect(tellerResponse.aadhar).to.equal('XX-XX-XX-' + originalRecord.aadhar.toString().substr(-2));
+      expect(agentResponse.custRef).to.equal('XXXXX-BLR-XXXX');
+    });
+
+    it('t49 should assert that manager and admin results are identical since there is no personalization rules applied', () => {
+      expect(managerResponse).to.deep.equal(adminResponse);
     });
 
   });
