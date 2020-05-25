@@ -19,7 +19,6 @@
   "parse": {
   },
   "routes:before": {
-    "./middleware/foo": {},
     "loopback#rest": {
       "paths": ["${restApiRoot}"]
     }
