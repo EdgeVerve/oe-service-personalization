@@ -44,6 +44,15 @@ $ # Run test cases along with code coverage - code coverage report will be avail
 $ npm run grunt-cover
 ```
 
+## Main features
+
+- Customizing remote responses, or data 
+(i.e. queried via loopback model api),
+ to appear in a certain manner
+  - Based on user role
+  - Custom scope - for e.g. for android, or, ios clients
+- Limiting personalization to apply to a particular remote method
+
 ## How to use
 
 1. Install the module to your application
@@ -123,6 +132,29 @@ we have provided `scope` for this rule to take effect only
 when it is specified in the http headers of the request; it 
 is always a simple key/value pair.
 
+To have this personalization apply only to a user of a specified
+role (say to either `tellers` or `agents`), it must be defined as in the below example:
+
+Example:
+```json
+{
+    "disabled" : false,
+    "modelName" : "ProductCatalog",
+    "personalizationRule" : {
+        "fieldValueReplace" : {
+            "keywords" : {
+                "Alpha" : "A",
+                "Bravo" : "B"
+            }
+        }
+    },
+    "scope" : {
+        "roles" : ["teller", "agent"]
+    }
+}
+```
+
+
 5. _(Optional)_ If there are some custom function based
 operations, add the path in the application's `config.json`
 file. Alternatively, set the environment variable: 
@@ -143,19 +175,32 @@ $ export custom_function_path="/project/customFuncDir"
 
 ## Working Principle
 
-During application startup all the models which have the 
-above mixin applied will behave differently; we attach
-`beforeRemote` and `afterRemote` hooks which determine if
-there are personalization rules for the model, 
-and, then finally performs
-the defined operations on the request/response (as per the 
-case). It also recursively does this in the case relational data
-is included. The net effect of all the operations is the 
-"personalized" data.
+All models with the `ServicePersonalizationMixin` 
+enabled will have functions attached
+to its `afterRemote()` and `beforeRemote()` which will
+do the personalization.
 
-These steps personalize data as long as its accessed via a 
-remote endpoint (aka _remotes_). To do this in code, please
-see the programmatic api.
+The personalization records, stored in `PersonalizationRule`,
+are queried according to scope, and, model participating, in
+the remote call. The information  required for this
+is obtained from the `HttpContext` which is an argument in
+the callback of the aforementioned methods.
+
+After this, these steps are done:
+
+1. personalization is applied at the root model, i.e. the 
+one that participates in the remote call.
+2. personalization is then applied to any relations
+3. personalization is applied to all properties 
+of the root model, which are model constructors
+
+Personalization can happen through code also via `performServicePersonalization()`
+api call. They follow the same process mentioned above,
+however, there are a few limitations. Notably, those 
+operations which are meant to apply `post-fetch` will 
+be honoured, and, thus personalized.
+
+More details on `pre-fetch` and `post-fetch` in sections below. (Significance of pre-fetch & post-fetch)
 
 ## Supported operations
 
@@ -175,45 +220,158 @@ corresponding tests:
 
 | Operation          | Description                                                                                                   | Aspect               | Tests                                 |
 |--------------------|---------------------------------------------------------------------------------------------------------------|----------------------|---------------------------------------|
-| lbFilter           | This applies a loopback filter  to the request; it can contain an _include_ clause or a _where_ clause.       | Pre-apply            | t21                                   |
-| filter             | Same as above, but only adds the where clause to the request i.e.  a query-based filter                       | Pre-apply            | t9                                    |
-| sort               | Performs a sort at the datasource level                                                                       | Pre-apply            | t4, t5, t6, t7, t8, t10, t11          |
-| fieldReplace       | Replaces the property name in the data with another text. (Not its value)                                     | Pre-apply/Post-apply | t1, t15, t17                          |
-| fieldValueReplace  | Replaces the property value in the data                                                                       | Pre-apply/Post-apply | t22, t20, t19, t18, t17, t16, t3, t23 |
-| fieldMask          | Masks value in the field according to a regex pattern                                                         | Post-apply           | t24, t25, t26, t27, t28, t29          |
-| mask               | Hides a field in the response                                                                                 | Pre-apply            | t13                                   |
-| hide               | Same as _mask_                                                                                                | Pre-apply            | t13                                   |
-| postCustomFunction | Adds a custom function which can add desired customization to response. Please see step #5 in how to use.     | Post-apply           | t35, t36                              |
-| preCustomFunction  | Adds a custom function which can add desired customization to the request. Please see step  #5 in how to use. | Pre-apply            | t35, t36                              |
+| lbFilter           | This applies a loopback filter  to the request; it can contain an _include_ clause or a _where_ clause.       | pre-fetch            | t21                                   |
+| filter             | Same as above, but only adds the where clause to the request i.e.  a query-based filter                       | pre-fetch            | t9                                    |
+| sort               | Performs a sort at the datasource level                                                                       | pre-fetch            | t4, t5, t6, t7, t8, t10, t11          |
+| fieldReplace       | Replaces the property name in the data with another text. (Not its value)                                     | pre-fetch/post-fetch | t1, t15, t17                          |
+| fieldValueReplace  | Replaces the property value in the data                                                                       | pre-fetch/post-fetch | t22, t20, t19, t18, t17, t16, t3, t23 |
+| fieldMask          | Masks value in the field according to a regex pattern. More details in the section of fieldMask                                                         | post-fetch           | t24, t25, t26, t27, t28, t29          |
+| mask               | Hides a field in the response                                                                                 | pre-fetch            | t13                                   |
+| postCustomFunction | Adds a custom function which can add desired customization to response. Please see step #5 in how to use.     | post-fetch           | t35, t36                              |
+| preCustomFunction  | Adds a custom function which can add desired customization to the request. Please see step  #5 in how to use. | pre-fetch            | t35, t36                              |
+
+
+## **fieldMask** options
+
+Prior to version 2.4.0, a field mask definition looks like this:
+
+```json
+{
+  "modelName": "ProductCatalog",
+  "personalizationRule": {
+    "fieldMask": {
+      "modelNo": {
+        "pattern": "([0-9]{3})([0-9]{3})([0-9]{4})",
+        "maskCharacter": "X",
+        "format": "($1) $2-$3",
+        "mask": [
+          "$3"
+        ]
+      }
+    }
+  },
+  "scope": {
+    "region": "us"
+  }
+}
+```
+
+This is still supported. The framework assumes 
+`modelNo` in this example to be of type `String` 
+and performs validation before insert into 
+`PersonalizationRule` model.
+
+The **fieldMask** operations can be applied to the following data types:
+- String
+- Number
+- Date
+
+Validation will happen for the same at the time of creating
+the PersonalzationRule record.
+
+Formal way to specify masking data of type `String` is as follows:
+
+```json
+{
+  "modelName": "ProductCatalog",
+  "personalizationRule": {
+    "fieldMask": {
+      "modelNo": {
+        "stringMask" : {
+          "pattern": "([0-9]{3})([0-9]{3})([0-9]{4})",
+          "maskCharacter": "X",
+          "format": "($1) $2-$3",
+          "mask": [
+            "$3"
+          ]
+        }
+        
+      }
+    }
+  },
+  "scope": {
+    "region": "us"
+  }
+}
+```
+
+Formal way to specify masking of numbers is as follows:
+```json
+{
+  "modelName": "ProductCatalog",
+  "personalizationRule": {
+    "fieldMask": {
+      "modelNo": {
+        "numberMask" : {
+          "pattern": "([0-9]{3})([0-9]{3})([0-9]{4})",
+          "maskCharacter": "X",
+          "format": "($1) $2-$3",
+          "mask": [
+            "$3"
+          ]
+        }
+        
+      }
+    }
+  },
+  "scope": {
+    "region": "us"
+  }
+}
+```
+
+> Note: the options are similar to that of `stringMask`.
+Validation is done to determine if modelNo is of type `Number`
+
+Formal way to specify masking of dates are as follows:
+```json
+{
+  "modelName": "XCustomer",
+  "personalizationRule": {
+    "fieldMask": {
+      "dob": {
+        "dateMask": {
+          "format": "MMM/yyyy"
+        }
+      }
+    }
+  }
+}
+```
+The `format` in a `dateMask` field accepts any valid joda-time string. It is also
+assumed to be of the `en_us` locale by default. Characters
+intended for masking can be embedded in the format string itself,
+however, they are a limited set, as, certain commonly used 
+characters like `x` or `X` have special meaning in the joda
+standard.
+
+A `locale` option can be passed
+alternatively specifying a different locale. Acceptable values (`String`) are:
+- ENGLISH
+- US (_default_)
+- UK
+- CANADA
+- FRENCH
+- FRANCE
+- GERMAN
+- GERMANY
+
+For more info about joda-time format visit: https://js-joda.github.io/js-joda/manual/formatting.html#format-patterns
 
 ## Programmatic API
 
 To do personalization in a custom remote method, or, in unit 
-tests you need the following api.
+tests you need the `performServicePersonalizations()` api.
+
+Example
 
 ```JavaScript
 
-const { applyServicePersonalization } = require('oe-service-personalization/lib/service-personalizer');
+const { performServicePersonalizations } = require('./../../../lib/service-personalizer'); // or require('oe-service-personalization/lib/service-personalizer');
+const loopback = require('loopback');
 
-// ...
-var options = {
-  isBeforeRemote: false, // required
-  context: ctx //the http context
-};
-
-applyServicePersonalization(modelName, data, options, function(err){
-  // nothing to access here since
-  // data gets mutated internally
-})
-```
-
-Example directly from our tests (test case `t41`): `./test/common/models/product-owner.js`
-
-```javascript
-const { applyServicePersonalization } = require('./../../../lib/service-personalizer'); // or require('oe-service-personalization/lib/service-personalizer');
-
-module.exports = function(ProductOwner) {
-  ProductOwner.remoteMethod('demandchain', {
+module.exports = function(PseudoProductOwner) {
+  PseudoProductOwner.remoteMethod('demandchain', {
     description: 'Gets the stores, store addresses, and, contacts of a product owner',
     accepts: [
       {
@@ -238,12 +396,12 @@ module.exports = function(ProductOwner) {
     http: { path: '/:id/demandchain', verb: 'get' }
   });
 
-  ProductOwner.demandchain = function(ownerId, options, done) {
+  PseudoProductOwner.demandchain = function(ownerId, options, done) {
     if(typeof done === 'undefined' && typeof options === 'function') {
       done = options;
       options = {};
     };
-
+    let ProductOwner = loopback.findModel('ProductOwner');
     let filter = {
       "include": [ 
         {
@@ -261,36 +419,36 @@ module.exports = function(ProductOwner) {
     };
     ProductOwner.findOne(filter, options, function(err, result) {
       if(err) {
-        done(err)
+        return done(err);
       }
-      else {
-        let persOpts = {
-          isBeforeRemote: false, context: options
-        };
-        applyServicePersonalization('ProductOwner', result, persOpts, function(err){
-          done(err, result);
-        });
+      let persOptions = {
+        isBeforeRemote: false,
+        context: options
       }
-    })
+      performServicePersonalizations(ProductOwner.definition.name, result, persOptions, function(err){
+        done(err, result);
+      })
+    });
   };
 }
 ```
 
-## Pre-apply/Post-apply & Relations
+## Significance of pre-fetch/post-fetch operations
 
-All operations have two aspects. Some operations 
-modify the context of the http request (for e.g.
-`lbFilter`, `sort`, etc). Some operations modify the response (e.g. `fieldMask`)
-we can access in an `afterRemote` phase of a request/response
-pipeline. Other operations (for e.g. `fieldReplace`) have to 
-take effect in both the stages.
+It impacts how personalizations is done for relations, and, nested
+data.
 
-Pre-apply/Post-apply is the vocabulary adopted to distinguish
-these aspects of an operation - namely how and when it is 
-applied in the request/response pipeline.
+Operations are individual actions you can perform on data, such as 
+**fieldMask**, or, **fieldValueReplace**, etc.
+
+A `pre-fetch` operation is applied before data is fetched from 
+a loopback datasource. For e.g. **lbFilter**, **filter**, etc
+
+A `post-fetch` operation is carried out after data is fetched
+from a loopback datasource. For e.g. **fieldMask**
 
 Due to the way loopback relations are
-implemented only operations that post-apply are honoured.
+implemented only operations that `post-fetch` are honoured.
 This is also the case when using the programmatic api
 for service personalization (regardless of whether relations
 are accessed or not).
@@ -300,7 +458,7 @@ are accessed or not).
 1. Datasource support. Datasources can be service-oriented.
 (Such as a web service). 
 Hence support for sorting, filtering, etc may be limited.
-Therefore operations which pre-apply may not give expected
+Therefore operations which pre-fetch may not give expected
 results.
 
 2. Using custom functions (`postCustomFunction` or `preCustomFunction`).
@@ -309,7 +467,7 @@ operation. No point in trying to modify `ctx.result` in a
 `preCustomFunction`. Also ensure path to the directory where
 the custom functions are stored is configured correctly.
 
-3. Pre-apply/post-apply and relations
+3. Understand how pre-fetch/post-fetch applies to relations and nested data.
 ## Test Synopsis
 
 The following entity structure and relationships assumed for most of the tests.
