@@ -448,7 +448,7 @@ A `post-fetch` operation is carried out after data is fetched
 from a loopback datasource. For e.g. **fieldMask**
 
 Due to the way loopback relations are
-implemented only operations that `post-fetch` are honoured.
+implemented, only operations that `post-fetch` are honoured.
 This is also the case when using the programmatic api
 for service personalization (regardless of whether relations
 are accessed or not).
