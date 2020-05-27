@@ -53,6 +53,83 @@ $ npm run grunt-cover
   - Custom scope - for e.g. for android, or, ios clients
 - Limiting personalization to apply to a particular remote method
 
+## `PersonalizationRule` model
+
+This is the framework model is used to store personalization rules.
+
+```json
+{
+  "name": "PersonalizationRule",
+  "base": "BaseEntity",
+  "plural": "PersonalizationRules",
+  "description": "Service Personalization metadata",
+  "idInjection": false,
+  "strict": true,
+  "options": {
+    "validateUpsert": true,
+    "isFrameworkModel": true
+  },
+  "properties": {
+    "ruleName": {
+      "type": "string"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "modelName": {
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "notin": [
+        "PersonalizationRule"
+      ]
+    },
+    "personalizationRule": {
+      "type": "object",
+      "required": true
+    },
+    "methodName" : {
+      "type": "string",
+      "default": "**",
+      "description": "The model methodName this rule should apply to. Should be the methodName (static/instance) or wildcards you specify in a afterRemote()/beforeRemote(). Default '**'"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {},
+  "mixins": {}
+}
+```
+
+### Important properties
+1. `modelName` - the target model for which the personalization should apply
+2. `personalizationRule` - the json object which stores operations to apply. More in the `How to Use` and `Supported operations` sections
+3. `disabled` - boolean flag which instructs framework to apply personalization or not - default _false_ (i.e. apply the personalizations)
+4. `methodName` - the method for which personalization has to apply - default `**` - i.e. apply to all static and instance methods. See below for acceptable values.
+5. `ruleName` - (_optional_) name for the personalization rule. Used for debugging.
+6. `scope` - (_optional_) used to control personalization based on roles
+or through http headers (by the api consumers). For e.g.
+it can have a value `{ "roles" : ['admin'] }`... 
+it means, personalization will apply for a 
+logged-in `admin` user only.
+
+### Accepted values for `methodName`
+
+It can accept the following patterns (wildcards and names)
+- `**` (_default_) - all static and instance methods
+- `*` - only static methods
+- `*.*` or `prototype.*` - only instance methods
+- **Valid static method name**. It can be standard, 
+or, a custom static remote method.
+- **Valid instance method name**. It can be standard, 
+or, a custom instance remote method. 
+E.g. `prototype.foo`, where `foo` is a method 
+defined on the prototype of the model's constructor.
+
+See section `Notes on loopback relations` for more information.
+
 ## How to use
 
 1. Install the module to your application
@@ -130,7 +207,8 @@ The above example adds a `fieldValueReplace` operation to the
 `keywords` property of `ProductCatalog` model. Additionally
 we have provided `scope` for this rule to take effect only
 when it is specified in the http headers of the request; it 
-is always a simple key/value pair.
+is always a simple key/value pair. See section `Supported operations`
+for info about more operations.
 
 To have this personalization apply only to a user of a specified
 role (say to either `tellers` or `agents`), it must be defined as in the below example:
@@ -269,6 +347,8 @@ The **fieldMask** operations can be applied to the following data types:
 Validation will happen for the same at the time of creating
 the PersonalzationRule record.
 
+### fieldMask for strings
+
 Formal way to specify masking data of type `String` is as follows:
 
 ```json
@@ -294,6 +374,8 @@ Formal way to specify masking data of type `String` is as follows:
   }
 }
 ```
+
+### fieldMask for numbers
 
 Formal way to specify masking of numbers is as follows:
 ```json
@@ -322,6 +404,8 @@ Formal way to specify masking of numbers is as follows:
 
 > Note: the options are similar to that of `stringMask`.
 Validation is done to determine if modelNo is of type `Number`
+
+### fieldMask for date
 
 Formal way to specify masking of dates are as follows:
 ```json
@@ -357,6 +441,30 @@ alternatively specifying a different locale. Acceptable values (`String`) are:
 - GERMANY
 
 For more info about joda-time format visit: https://js-joda.github.io/js-joda/manual/formatting.html#format-patterns
+
+## Operations on objects
+
+Operations such as `fieldMask`, `fieldValueReplace`, etc can be 
+applied on properties of type `Object`.
+
+The path to the nested property can be specified by using
+the unicode character `\uFF0E` as seperator. 
+
+Example (test `t31`):
+
+```json
+{
+  "modelName": "Customer",
+  "personalizationRule": {
+    "fieldReplace": {
+      "billingAddress\uFF0Estreet": "lane"
+    }
+  },
+  "scope": {
+    "device": "android"
+  }
+}
+```
 
 ## Programmatic API
 
@@ -468,6 +576,7 @@ operation. No point in trying to modify `ctx.result` in a
 the custom functions are stored is configured correctly.
 
 3. Understand how pre-fetch/post-fetch applies to relations and nested data.
+4. See section `Note on loopback relations`
 ## Test Synopsis
 
 The following entity structure and relationships assumed for most of the tests.
@@ -536,3 +645,52 @@ $ node test/server.js
 
 It is also recommended to attach an explorer component (such as 
 loopback-component-explorer) when running as a standalone application.
+
+## Note on loopback relations
+
+The standard names for instance methods
+commonly refer to a loopback relation. The names
+are governed by the loopback framework. The pattern
+goes something like this:
+
+E.g. consider a simple Customer/Order relationship.
+Assume the following description of a `Customer`
+model:
+
+* `Customer`
+  - relations
+      - `orders`
+        - type: `hasMany`
+        - model: `Order`
+
+Assumes a client invokes the following api (GET):
+```
+http://localhost:3000/api/Customers/2/orders
+```
+The loopback framework creates a `methodString` on the `HttpContext`
+object as follows:
+```
+Customer.prototype.__get__orders
+```
+
+If the requirement is such that, only _this_ api call
+should be personalized, do the following:
+
+1. Create an _empty_ personalization record on `Customer`
+```json
+{
+  "modelName": "Customer",
+  "personalizationRule": {},
+  "methodName": "prototype.__get__orders"
+}
+```
+2. Create a personalization record for `Order`
+
+This should ensure the required result in the desired remote call.
+
+> Note: both models should have `ServicePersonalizationMixin` enabled
+
+Therefore, when writing custom methods that operate over 
+remote, it is better not to collude to loopback's 
+internal naming standards.
+
