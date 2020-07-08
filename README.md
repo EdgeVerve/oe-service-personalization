@@ -246,7 +246,7 @@ Example:
 ```
 
 
-##### 5. _(Optional)_ If there are some custom function based
+#### 5. _(Optional)_ If there are some custom function based
 operations, add the path in the application's `config.json`
 file. Alternatively, set the environment variable: 
 `custom_function_path`
