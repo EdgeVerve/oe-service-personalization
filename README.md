@@ -132,6 +132,12 @@ See section `Notes on loopback relations` for more information.
 
 ## How to use
 
+This documents a general usage pattern - achieving 
+personalization via call to the http endpoint
+of the model.
+
+The same can be done through code. Refer to `Programmatic Api` section for the same.
+
 #### 1. Install the module to your application
 
 ```
@@ -246,8 +252,9 @@ Example:
 ```
 
 
-#### 5. _(Optional)_ If there are some custom function based
-operations, add the path in the application's `config.json`
+#### 5. _(Optional)_ Configure custom functions path
+
+If there are custom function operations, add the path in the application's `config.json`
 file. Alternatively, set the environment variable: 
 `custom_function_path`
 
