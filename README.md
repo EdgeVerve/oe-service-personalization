@@ -115,7 +115,7 @@ it can have a value `{ "roles" : ['admin'] }`...
 it means, personalization will apply for a 
 logged-in `admin` user only.
 
-### Accepted values for `methodName`
+### Acceptable values for `methodName`
 
 It can accept the following patterns (wildcards and names)
 - `**` (_default_) - all static and instance methods
@@ -132,21 +132,34 @@ See section `Notes on loopback relations` for more information.
 
 ## How to use
 
-1. Install the module to your application
+#### 1. Install the module to your application
 
 ```
 npm install oe-service-personalization
 ```
-2. In your project's `app-list.json` file add the following config:
+#### 2. Add config to your project's `app-list.json`:
 
 ```
   {
     "path": "oe-service-personalization",
-    "enabled": true,
-    "autoEnableMixins": true
+    "enabled": true    
   }
 ```
-3. Add `ServicePersonalizationMixin` mixin to the model declaration.
+
+If you require role-based service personalization, add `oe-personalization` depedency prior to `oe-service-personalization`
+```
+  {
+    "path": "oe-personalization",
+    "enabled": true,
+    "autoEnableMixins": true
+  },
+  {
+    "path": "oe-service-personalization",
+    "enabled": true    
+  }
+```
+
+#### 3. Add `ServicePersonalizationMixin` mixin to the model declaration.
 
 Example:
 ```json
@@ -245,7 +258,7 @@ Example: (`config.json` snippet):
     "customFunctionPath": "D:\\Repos\\oecloud.io\\oe-service-personalization_master\\test\\customFunction"
   }
 ```
-Example: (via environment variable):
+Example: (via environment variable) (bash prompt):
 ```bash
 $ export custom_function_path="/project/customFuncDir"
 ```
@@ -259,7 +272,7 @@ to its `afterRemote()` and `beforeRemote()` which will
 do the personalization.
 
 The personalization records, stored in `PersonalizationRule`,
-are queried according to scope, and, model participating, in
+are queried according to scope, and, model participating in
 the remote call. The information  required for this
 is obtained from the `HttpContext` which is an argument in
 the callback of the aforementioned methods.
@@ -273,12 +286,13 @@ one that participates in the remote call.
 of the root model, which are model constructors
 
 Personalization can happen through code also via `performServicePersonalization()`
-api call. They follow the same process mentioned above,
+or, `applyServicePersonalization()`
+api calls. They follow the same process mentioned above,
 however, there are a few limitations. Notably, those 
 operations which are meant to apply `post-fetch` will 
 be honoured, and, thus personalized.
 
-More details on `pre-fetch` and `post-fetch` in sections below. (Significance of pre-fetch & post-fetch)
+More details on `pre-fetch` and `post-fetch` in sections below. (_Significance of pre-fetch & post-fetch_)
 
 ## Supported operations
 
@@ -345,7 +359,9 @@ The **fieldMask** operations can be applied to the following data types:
 - Date
 
 Validation will happen for the same at the time of creating
-the PersonalzationRule record.
+the PersonalzationRule record, i.e., type validation on the
+field will take place against the same field in the target
+model.
 
 ### fieldMask for strings
 
@@ -468,14 +484,45 @@ Example (test `t31`):
 
 ## Programmatic API
 
-To do personalization in a custom remote method, or, in unit 
-tests you need the `performServicePersonalizations()` api.
+There are two flavours of api wrt personalization. Both are available in the following namespace:
+
+```
+oe-service-personalization/lib/api
+```
+
+### 1. Using model name, and, model data
+
+Use  `performServicePersonalizations()` api.
+
+The signature is as follows:
+
+```js
+/**
+ * Personalizes data by mutating it.
+ *
+ * The personalization rules are queried
+ * using the modelName.
+ *
+ * @param {string} modelName - name of model
+ * @param {*} data - Array or Object
+ * @param {ServicePersonalizationOptions} options - service personalization options
+ *  Two properties:
+ *    - isBeforeRemote - always false
+ *    - context - the HttpContext object
+ * @param {function} cb - the function to signal completion
+ *   Has only one arguments - error
+ * @returns {undefined} - nothing
+ */
+function performServicePersonalizations(modelName, data, options, cb) {
+  // ...
+}
+```
 
 Example
 
 ```JavaScript
 
-const { performServicePersonalizations } = require('./../../../lib/service-personalizer'); // or require('oe-service-personalization/lib/service-personalizer');
+const { performServicePersonalizations } = require('./../../../lib/api'); // or require('oe-service-personalization/lib/api');
 const loopback = require('loopback');
 
 module.exports = function(PseudoProductOwner) {
@@ -541,6 +588,32 @@ module.exports = function(PseudoProductOwner) {
 }
 ```
 
+> Note: the `options` in the remote method function 
+definition, in the example above is, `HttpContext`
+
+#### 2. Using model name, data, and, personalization rules
+
+Use the `applyServicePersonalization()` api
+
+Signature:
+```js
+/**
+   * Api for personalization. Rules can
+   * be manually passed as arguments to
+   * this function.
+   *
+   * @param {string} modelName - the model name.
+   * @param {*} data - object or array
+   * @param {array} personalizationRecords - the personalization rule as an array.
+   * @param {object} options - personalization options
+   * @param {function} done - callback to signal completion. Takes only one argument - error.
+   * @returns {undefined} - nothing
+   */
+  function applyServicePersonalization(modelName, data, personalizationRecords, options, done) {
+    // ...
+  }
+```
+
 ## Significance of pre-fetch/post-fetch operations
 
 It impacts how personalizations is done for relations, and, nested
@@ -575,8 +648,10 @@ operation. No point in trying to modify `ctx.result` in a
 `preCustomFunction`. Also ensure path to the directory where
 the custom functions are stored is configured correctly.
 
-3. Understand how pre-fetch/post-fetch applies to relations and nested data.
-4. See section `Note on loopback relations`
+3. Understand how pre-fetch/post-fetch applies to relations and nested data. See section `Significance of pre-fetch/post-fetch operations`
+
+4. See section `Notes on loopback relations`
+
 ## Test Synopsis
 
 The following entity structure and relationships assumed for most of the tests.
@@ -674,23 +749,16 @@ Customer.prototype.__get__orders
 ```
 
 If the requirement is such that, only _this_ api call
-should be personalized, do the following:
-
-1. Create an _empty_ personalization record on `Customer`
-```json
-{
-  "modelName": "Customer",
-  "personalizationRule": {},
-  "methodName": "prototype.__get__orders"
-}
-```
-2. Create a personalization record for `Order`
+should be personalized, _create a personalization record_ for `Order`
 
 This should ensure the required result in the desired remote call.
 
 > Note: both models should have `ServicePersonalizationMixin` enabled
 
-Therefore, when writing custom methods that operate over 
-remote, it is better not to collude to loopback's 
+A developer always has the freedom to define a non-static
+instance method with the same name, and, still have the 
+relation defined. One must always refrain from doing this.
+
+Do not to collude with loopback's 
 internal naming standards.
 

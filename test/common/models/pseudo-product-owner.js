@@ -1,4 +1,4 @@
-const { performServicePersonalizations } = require('./../../../lib/service-personalizer'); // or require('oe-service-personalization/lib/service-personalizer');
+const { performServicePersonalizations } = require('./../../../lib/api'); // or require('oe-service-personalization/lib/api');
 const loopback = require('loopback');
 
 module.exports = function(PseudoProductOwner) {
