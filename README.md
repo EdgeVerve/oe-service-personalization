@@ -26,7 +26,33 @@ is frequently accessed. Such information can be used to improve
 the user experience on that platform. However, this is not in 
 scope of this document.
 
-## dependency
+## Table Of Contents
+- [oe-service-personalization](#oe-service-personalization)
+  * [Table Of Contents](#table-of-contents)
+  * [Dependency](#dependency)
+  * [Install and test](#install-and-test)
+  * [Main features](#main-features)
+  * [`PersonalizationRule` model](#-personalizationrule--model)
+    + [Important properties](#important-properties)
+    + [Acceptable values for `methodName`](#acceptable-values-for--methodname-)
+  * [How to use](#how-to-use)      
+  * [Working Principle](#working-principle)
+  * [Supported operations](#supported-operations)
+  * [**fieldMask** options](#--fieldmask---options)
+    + [fieldMask for strings](#fieldmask-for-strings)
+    + [fieldMask for numbers](#fieldmask-for-numbers)
+    + [fieldMask for date](#fieldmask-for-date)
+  * [Operations on objects](#operations-on-objects)
+  * [Programmatic API](#programmatic-api)
+    + [1. Using model name, and, model data](#1-using-model-name--and--model-data)
+    + [2. Using model name, data, and, personalization rules](#2-using-model-name--data--and--personalization-rules)
+  * [Significance of pre-fetch/post-fetch operations](#significance-of-pre-fetch-post-fetch-operations)
+  * [Points to consider](#points-to-consider)
+  * [Test Synopsis](#test-synopsis)
+  * [Note on loopback relations](#note-on-loopback-relations)
+
+## Dependency
+
 * oe-cloud
 * oe-logger
 * oe-expression
@@ -598,7 +624,7 @@ module.exports = function(PseudoProductOwner) {
 > Note: the `options` in the remote method function 
 definition, in the example above is, `HttpContext`
 
-#### 2. Using model name, data, and, personalization rules
+### 2. Using model name, data, and, personalization rules
 
 Use the `applyServicePersonalization()` api
 
@@ -766,6 +792,6 @@ A developer always has the freedom to define a non-static
 instance method with the same name, and, still have the 
 relation defined. One must always refrain from doing this.
 
-Do not to collude with loopback's 
+Do not collude with loopback's 
 internal naming standards.
 
