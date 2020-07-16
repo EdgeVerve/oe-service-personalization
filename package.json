@@ -16,7 +16,7 @@
   "dependencies": {
     "assertion-error": "1.1.0",
     "async": "2.6.1",
-    "lodash": "4.17.14",
+    "lodash": "4.17.19",
     "oe-cloud": "^2.0.0",
     "oe-expression": "^2.0.0",
     "oe-personalization": "^2.0.0"
