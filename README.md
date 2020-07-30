@@ -26,37 +26,42 @@ is frequently accessed. Such information can be used to improve
 the user experience on that platform. However, this is not in 
 scope of this document.
 
+> This documentation is best viewed in a github based
+markdown viewer. E.g. Visual Code editor's inbuilt markdown
+reader
+
 ## Table Of Contents
+
 - [oe-service-personalization](#oe-service-personalization)
-  - [Table Of Contents](#table-of-contents)
-  - [Dependency](#dependency)
-  - [Install and test](#install-and-test)
-  - [Main features](#main-features)
-  - [`PersonalizationRule` model](#-personalizationrule--model)
-    - [Important properties](#important-properties)
-    - [Acceptable values for `methodName`](#acceptable-values-for--methodname-)
-  - [How to use](#how-to-use)      
-  - [Working Principle](#working-principle)
-  - [Supported operations](#supported-operations)
-  - [**fieldMask** options](#--fieldmask---options)
-    - [fieldMask for strings](#fieldmask-for-strings)
-    - [fieldMask for numbers](#fieldmask-for-numbers)
-    - [fieldMask for date](#fieldmask-for-date)
-  - [Operations on objects](#operations-on-objects)
-  - [Programmatic API](#programmatic-api)
-    - [1. Using model name, and, model data](#1-using-model-name--and--model-data)
-    - [2. Using model name, data, and, personalization rules](#2-using-model-name--data--and--personalization-rules)
-  - [Significance of pre-fetch/post-fetch operations](#significance-of-pre-fetch-post-fetch-operations)
-  - [Points to consider](#points-to-consider)
-  - [Test Synopsis](#test-synopsis)
-  - [Note on loopback relations](#note-on-loopback-relations)
-
-## Dependency
-
-* oe-cloud
-* oe-logger
-* oe-expression
-* oe-personalization
+  * [Table Of Contents](#table-of-contents)
+  * [Install and test](#install-and-test)
+  * [Main features](#main-features)
+  * [`PersonalizationRule` model](#-personalizationrule--model)
+    + [Important properties](#important-properties)
+    + [Acceptable values for `methodName`](#acceptable-values-for--methodname-)
+  * [How to use](#how-to-use)
+      - [1. Install the module to your application](#1-install-the-module-to-your-application)
+      - [2. Add config to your project's `app-list.json`:](#2-add-config-to-your-project-s--app-listjson--)
+      - [3. Add `ServicePersonalizationMixin` mixin to the model declaration.](#3-add--servicepersonalizationmixin--mixin-to-the-model-declaration)
+      - [4. Insert rules into the `PersonalizationRule` model.](#4-insert-rules-into-the--personalizationrule--model)
+      - [5. _(Optional)_ Configure custom functions path](#5---optional---configure-custom-functions-path)
+  * [Working Principle](#working-principle)
+  * [Supported operations](#supported-operations)
+  * [**fieldMask** options](#--fieldmask---options)
+    + [fieldMask for strings](#fieldmask-for-strings)
+    + [fieldMask for numbers](#fieldmask-for-numbers)
+    + [fieldMask for date](#fieldmask-for-date)
+  * [Operations on objects](#operations-on-objects)
+  * [Programmatic API](#programmatic-api)
+    + [1. Using model name, and, model data](#1-using-model-name--and--model-data)
+    + [2. Using model name, data, and, personalization rules](#2-using-model-name--data--and--personalization-rules)
+  * [Significance of pre-fetch/post-fetch operations](#significance-of-pre-fetch-post-fetch-operations)
+  * [Points to consider](#points-to-consider)
+  * [Test Synopsis](#test-synopsis)
+  * [Note on loopback relations](#note-on-loopback-relations)
+  * [Additional Locale support for dates](#additional-locale-support-for-dates)
+    + [Dynamic locale support](#dynamic-locale-support)
+    + [Dynamic locale support (with limited locales)](#dynamic-locale-support--with-limited-locales-)
 
 ## Install and test
 
@@ -478,18 +483,10 @@ however, they are a limited set, as, certain commonly used
 characters like `x` or `X` have special meaning in the joda
 standard.
 
-A `locale` option can be passed
-alternatively specifying a different locale. Acceptable values (`String`) are:
-- ENGLISH
-- US (_default_)
-- UK
-- CANADA
-- FRENCH
-- FRANCE
-- GERMAN
-- GERMANY
-
 For more info about joda-time format visit: https://js-joda.github.io/js-joda/manual/formatting.html#format-patterns
+
+See note on supporting other locales. 
+( `Additional Locale support for dates` )
 
 ## Operations on objects
 
@@ -795,3 +792,48 @@ relation defined. One must always refrain from doing this.
 Do not collude with loopback's 
 internal naming standards.
 
+## Additional Locale support for dates
+
+To enable additional locale support, we must modify this module dependencies.
+
+### Dynamic locale support
+
+For multi-locale support, we must do the following:
+
+1. Uninstall `@js-joda/locale_en-us`
+2. Install the following: `@js-joda/locale`, `cldr-data`, `cldrjs` modules
+3. In the `./lib/utils.js` file, edit the `Locale` import line; 
+import from the generic module like follows:
+
+```
+const { Locale } = require('@js-joda/locale');
+```
+4. In the `dateMask` configuration, specify `locale` property.
+
+Acceptable values (`String`) for the `locale` property are:
+- ENGLISH
+- US (_default_)
+- UK
+- CANADA
+- FRENCH
+- FRANCE
+- GERMAN
+- GERMANY
+
+> Warning: These steps could increase the size of `node_modules`. 
+
+### Dynamic locale support (with limited locales)
+
+For supporting only a few locales in a `dateMask` operation,
+we need to only install those locales and the generic `@js-joda/locale` module. The general pattern
+of the locale module will be:
+
+```
+@js-joda/locale_<locale>
+```
+
+Also perform steps `3` and `4` in the previous section.
+
+Refer to this documentation for acceptable `<locale>` values:
+
+https://github.com/js-joda/js-joda-locale#use-prebuilt-locale-packages
