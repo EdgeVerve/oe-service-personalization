@@ -20,7 +20,7 @@
     "lodash": "4.17.19",
     "oe-cloud": "git+http://evgit/oecloud.io/oe-cloud.git#2.3.0",
     "oe-expression": "git+http://evgit/oecloud.io/oe-expression.git#2.2.0",
-    "oe-personalization": "git+http://evgit/oecloud.io/oe-personalization.git#2.2.0"
+    "oe-personalization": "git+http://evgit/oecloud.io/oe-personalization.git#2.3.0"
   },
   "devDependencies": {
     "babel-eslint": "7.2.3",
