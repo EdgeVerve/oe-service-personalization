@@ -1,0 +1,20 @@
+{
+  "name": "Store",
+  "base":"BaseEntity",
+  "properties": {
+    "name": "string"
+  },
+  "relations": {
+    "addresses": {
+      "model": "AddressBook",
+      "type": "hasMany"
+    },
+    "products": {
+      "type":"hasMany",
+      "model": "ProductCatalog"
+    }
+  },
+  "mixins": {
+    "ServicePersonalizationMixin": true
+  }
+}

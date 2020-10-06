@@ -39,5 +39,25 @@
   "ProductOwner" :{
     "dataSource": "db",
     "public": true    
+  },
+  "AddressBook" : {
+    "dataSource" : "db",
+    "public": true
+  },
+  "PhoneNumber" : {
+    "dataSource" : "db",
+    "public": true
+  },
+  "Store" : {
+    "dataSource" : "db",
+    "public": true
+  },
+  "StoreStock" : {
+    "dataSource" : "db",
+    "public": true
+  },
+  "PseudoProductOwner" : {
+    "dataSource": "db",
+    "public": "true"
   }
 }

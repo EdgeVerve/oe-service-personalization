@@ -16,8 +16,15 @@
     "ProductCatalog": {
       "type": "hasMany",
       "model": "ProductCatalog"
-    }    
+    },
+    "address": {
+      "type" : "hasOne",
+      "model" : "AddressBook"
+    }
   },
   "acls": [],
-  "methods": {}
+  "methods": {},
+  "mixins": {
+    "ServicePersonalizationMixin" : true
+  }
 }

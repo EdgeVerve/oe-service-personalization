@@ -25,8 +25,16 @@
     ]
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "store":{
+      "model":"StoreStock",
+      "type": "hasOne"
+    }
+  },
   "acls": [],
   "methods": {},
-  "strict": true
+  "strict": true,
+  "mixins": {
+    "ServicePersonalizationMixin" : true
+  }
 }

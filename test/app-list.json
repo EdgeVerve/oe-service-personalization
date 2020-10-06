@@ -5,7 +5,8 @@
   },
   {
     "path": "oe-personalization",
-    "enabled": true
+    "enabled": true,
+    "autoEnableMixins" : true
   },
   {
     "path": "./",
@@ -14,6 +15,7 @@
   {
     "path": "./",
     "enabled": true,
-    "serverDir" : "test"
+    "serverDir" : "test",
+    "autoEnableMixins": true
   }
 ]
